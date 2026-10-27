@@ -161,3 +161,5 @@ cta-phones.webp
 ## التوافق
 
 يدعم المتصفحات الحديثة (Chrome، Edge، Firefox، Safari) مع تدرّج آمن للميزات عند غياب `IntersectionObserver` أو تفضيل تقليل الحركة.
+#   I P H O N E - T E S T  
+ 
