@@ -1,0 +1,129 @@
+/* ==========================================================================
+   layout.css — Container, section spacing, grids, responsive helpers
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Container
+   -------------------------------------------------------------------------- */
+:root {
+  --gutter: 20px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 40px;
+  }
+}
+
+.container {
+  width: min(100% - 2 * var(--gutter), 1240px);
+  margin-inline: auto;
+}
+
+/* --------------------------------------------------------------------------
+   2. Sections
+   -------------------------------------------------------------------------- */
+.section {
+  padding-block: var(--section-gap);
+}
+
+/* The fixed header height is handled by html { scroll-padding-top }; this adds
+   a little breathing room below it for every anchor target. */
+section[id],
+main[id] {
+  scroll-margin-top: var(--space-4);
+}
+
+.section--dark {
+  background-color: var(--color-charcoal);
+  color: var(--color-text-on-dark);
+}
+
+.section--dark .section-title,
+.section--dark .hero-title {
+  color: var(--color-text-on-dark);
+}
+
+.section--dark .body-text,
+.section--dark .caption {
+  color: var(--color-text-muted-on-dark);
+}
+
+.section--white {
+  background-color: var(--color-white);
+}
+
+.section-head {
+  max-width: 640px;
+  margin-inline: auto;
+  margin-block-end: var(--space-7);
+  text-align: center;
+}
+
+.section-head .section-title + .body-text,
+.section-head .hero-title + .body-text {
+  margin-block-start: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.section--dark .section-head .body-text {
+  color: var(--color-text-muted-on-dark);
+}
+
+/* --------------------------------------------------------------------------
+   3. Grids
+   -------------------------------------------------------------------------- */
+.grid-2,
+.grid-3,
+.grid-4 {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Responsive helpers
+   -------------------------------------------------------------------------- */
+.stack-md > * + * {
+  margin-block-start: var(--space-5);
+}
+
+@media (min-width: 1024px) {
+  .hide-mobile {
+    display: none;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .hide-desktop {
+    display: none;
+  }
+}
