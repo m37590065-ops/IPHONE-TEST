@@ -3,64 +3,130 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#252525">
+  <meta name="theme-color" content="#F3F1ED">
   <title>مجموعة الهواتف | أربعة ألوان. أسلوب واحد</title>
   <meta name="description" content="مجموعة هاتفية فاخرة تُقدَّم بأربعة ألوان مختارة بعناية، بأناقة بسيطة وحضور تقني راقٍ.">
 
   <script>document.documentElement.classList.add("js");</script>
+  <script>
+    (function () {
+      try {
+        var key = window.sessionStorage.getItem("phonesite:theme");
+        if (key && ["light-blue", "dark-cherry", "dark-gray", "silver"].indexOf(key) !== -1) {
+          document.documentElement.setAttribute("data-theme", key);
+        }
+      } catch (error) {}
+    })();
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%23252525'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='%23171B21'/%3E%3C/svg%3E">
 
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
+  <script src="js/products.js" defer></script>
   <script src="js/main.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">تخطَّ إلى المحتوى</a>
 
+  <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+    <symbol id="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14M13 6l6 6-6 6"></path>
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6 9 17l-5-5"></path>
+    </symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <path d="M12 5v14M5 12h14"></path>
+    </symbol>
+    <symbol id="icon-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <path d="M5 12h14"></path>
+    </symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <path d="M4 7h16M4 12h16M4 17h16"></path>
+    </symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <path d="M6 6l12 12M18 6 6 18"></path>
+    </symbol>
+    <symbol id="icon-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 7H6"></path>
+      <circle cx="10" cy="20" r="1"></circle>
+      <circle cx="18" cy="20" r="1"></circle>
+    </symbol>
+    <symbol id="icon-screen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="7" y="2.5" width="10" height="19" rx="2"></rect>
+      <path d="M10 5h4"></path>
+    </symbol>
+    <symbol id="icon-chip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="7" y="7" width="10" height="10" rx="2"></rect>
+      <rect x="10" y="10" width="4" height="4" rx="1"></rect>
+      <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"></path>
+    </symbol>
+    <symbol id="icon-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"></path>
+      <circle cx="12" cy="13" r="3.5"></circle>
+    </symbol>
+    <symbol id="icon-battery" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="7" width="16" height="10" rx="2"></rect>
+      <path d="M21 10v4M6 10v4"></path>
+    </symbol>
+    <symbol id="icon-design" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3a9 9 0 1 0 0 18h1.2a2 2 0 0 0 0-4H12a2 2 0 0 1 0-4h4.5A4.5 4.5 0 0 0 21 8.5C21 5.5 17 3 12 3Z"></path>
+      <circle cx="7.5" cy="10" r="1"></circle>
+      <circle cx="10" cy="6.5" r="1"></circle>
+      <circle cx="15" cy="6.5" r="1"></circle>
+    </symbol>
+    <symbol id="icon-connectivity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12.5a10 10 0 0 1 14 0M8 16a6 6 0 0 1 8 0M11 19.5a2 2 0 0 1 2 0"></path>
+    </symbol>
+  </svg>
+
   <!-- ===== Header (step 2) ===== -->
   <header id="site-header" class="site-header">
     <div class="container site-header__inner">
-      <a class="site-header__logo" href="#top" aria-label="الصفحة الرئيسية">
-        <span class="site-header__logo-mark" aria-hidden="true"></span>
-        <span class="site-header__logo-text">مجموعة</span>
+      <a class="site-header__logo" href="#top" aria-label="Phone Collection — الصفحة الرئيسية">
+        <span class="site-header__logo-mark" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <rect x="6.5" y="2.5" width="11" height="19" rx="3"></rect>
+            <path d="M10.5 18.5h3"></path>
+          </svg>
+        </span>
+        <span class="site-header__logo-text" lang="en" dir="ltr">Phone Collection</span>
       </a>
 
       <nav class="site-nav" id="site-nav" aria-label="التنقل الرئيسي">
-        <!-- Reachable at the top of the opened mobile menu. -->
-        <div class="site-nav__order">
-          <a class="btn btn--order" href="#order" data-order-cta>اطلب هاتفك الآن</a>
+        <div class="site-nav__head">
+          <span class="site-nav__title">القائمة</span>
+          <button class="icon-btn site-nav__close" type="button" aria-label="إغلاق القائمة">
+            <svg class="icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <use href="#icon-close"></use>
+            </svg>
+          </button>
         </div>
         <ul class="site-nav__list">
-          <li><a class="site-nav__link" href="#top">الصفحة الرئيسية</a></li>
+          <li><a class="site-nav__link" href="#top" aria-current="true">الصفحة الرئيسية</a></li>
           <li><a class="site-nav__link" href="#collection">مجموعة الهواتف</a></li>
           <li><a class="site-nav__link" href="#specs">المواصفات</a></li>
           <li><a class="site-nav__link" href="#faq">الأسئلة الشائعة</a></li>
           <li><a class="site-nav__link" href="#contact">التواصل</a></li>
         </ul>
-        <div class="site-nav__cta">
-          <a class="btn btn--primary" href="#contact">تواصل معنا</a>
+        <div class="site-nav__order">
+          <a class="btn btn--primary" href="#order" data-order-cta>اطلب هاتفك الآن</a>
         </div>
       </nav>
 
       <div class="site-header__actions">
-        <button class="icon-btn site-header__search" type="button" aria-label="بحث">
-          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-            <circle cx="11" cy="11" r="7"></circle>
-            <path d="m20.5 20.5-4-4"></path>
+        <a class="btn btn--primary site-header__cta" href="#order" data-order-cta>اطلب هاتفك الآن</a>
+        <button class="icon-btn site-header__toggle" type="button" aria-label="فتح القائمة" aria-expanded="false" aria-controls="site-nav">
+          <svg class="icon site-header__icon site-header__icon--menu" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="#icon-menu"></use>
           </svg>
-        </button>
-        <a class="btn btn--order site-header__cta" href="#order" data-order-cta>اطلب هاتفك الآن</a>
-        <button class="icon-btn site-header__toggle" type="button" aria-label="القائمة" aria-expanded="false" aria-controls="site-nav">
-          <svg class="site-header__icon site-header__icon--menu" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false">
-            <path d="M4 7h16M4 12h16M4 17h16"></path>
-          </svg>
-          <svg class="site-header__icon site-header__icon--close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false">
-            <path d="M6 6l12 12M18 6 6 18"></path>
+          <svg class="icon site-header__icon site-header__icon--close" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="#icon-close"></use>
           </svg>
         </button>
       </div>
@@ -70,13 +136,13 @@
 
   <main id="main">
     <!-- ===== Hero (step 2) ===== -->
-    <section id="top" class="hero" aria-labelledby="hero-title">
+    <section id="top" class="section section--main hero" aria-labelledby="hero-title">
       <div class="container hero__grid">
         <div class="hero__content">
           <h1 id="hero-title" class="hero__title hero-title">أربعة ألوان. أسلوب واحد لا يُشبه أحدًا.</h1>
           <p class="hero__lead">اكتشف مجموعة من الهواتف التي تجمع بين الأناقة العصرية والتفاصيل الدقيقة، واختر اللون الذي يعكس شخصيتك ويعبّر عن أسلوبك.</p>
           <div class="hero__actions">
-            <a class="btn btn--order" href="#order" data-order-cta>اطلب هاتفك الآن</a>
+            <a class="btn btn--primary" href="#order" data-order-cta>اطلب هاتفك الآن</a>
             <a class="btn btn--secondary" href="#collection">اكتشف الألوان الأربعة</a>
           </div>
           <div class="hero__colors">
@@ -90,8 +156,7 @@
 
         <div class="hero__media" data-hero-media>
           <picture class="hero__picture">
-            <source srcset="assets/images/hero-phones.webp" type="image/webp">
-            <img class="hero__img" src="assets/images/hero-phones.webp" width="1400" height="1000" alt="أربعة هواتف بأربعة ألوان: أزرق فاتح، كرزي داكن، رمادي داكن، وفضي" fetchpriority="high" decoding="async">
+            <img class="hero__img" src="assets/images/hero-phones.png" width="1261" height="706" alt="أربعة هواتف بأربعة ألوان: أزرق فاتح، كرزي داكن، رمادي داكن، وفضي" loading="eager" fetchpriority="high" decoding="async">
           </picture>
           <div class="hero__fallback" aria-hidden="true">
             <div class="phone-group">
@@ -105,146 +170,59 @@
       </div>
     </section>
 
-    <!-- ===== Collection (step 3) ===== -->
-    <section id="collection" class="section collection" aria-labelledby="collection-title">
+    <!-- ===== Collection (step 4) ===== -->
+    <section id="collection" class="section section--alt collection" aria-labelledby="collection-title">
       <div class="container">
-        <div class="section-head" data-reveal>
+        <div class="section-head collection__head" data-reveal>
+          <p class="collection__eyebrow">أربعة ألوان</p>
           <h2 id="collection-title" class="section-title">مجموعة الهواتف</h2>
           <p class="body-text">أربعة ألوان، لكل منها حضور مختلف. اكتشف مجموعتنا واختر الدرجة التي تناسب أسلوبك وتفاصيل ذوقك.</p>
         </div>
 
-        <!-- سعر وتوفر يمكن إضافتهما هنا إن أصبح الموقع متجرًا -->
         <div class="collection__strip-wrap" data-collection-strip role="group" aria-label="شريط مجموعة الهواتف">
-          <ul class="collection__grid collection__grid--strip" role="list">
-            <!-- Light Blue -->
-            <li class="collection__item" data-collection-item data-reveal>
-              <article class="phone-card" data-color="light-blue" tabindex="0">
-                <div class="phone-card__media">
-                  <picture>
-                    <source srcset="assets/images/phone-light-blue.webp" type="image/webp">
-                    <img src="assets/images/phone-light-blue.webp" width="800" height="1000" alt="هاتف بلون أزرق فاتح Light Blue" loading="lazy" decoding="async">
-                  </picture>
-                  <div class="phone-card__fallback" aria-hidden="true">
-                    <span class="phone-placeholder phone-placeholder--light-blue"></span>
-                  </div>
-                </div>
-                <div class="phone-card__body">
-                  <div class="phone-card__name-row">
-                    <span class="phone-card__name">
-                      <span class="en">Light Blue</span>
-                      <span>الأزرق الفاتح</span>
-                    </span>
-                    <span class="phone-card__dot phone-card__dot--light-blue" aria-hidden="true"></span>
-                  </div>
-                  <span class="phone-card__pantone en caption">Pantone 2121</span>
-                  <h3 class="phone-card__title">هدوء يلفت الأنظار.</h3>
-                  <p class="phone-card__desc">لون مستوحى من صفاء السماء وهدوء التفاصيل، يمنح الهاتف حضورًا أنيقًا وعصريًا دون مبالغة.</p>
-                  <div class="phone-card__actions">
-                    <a class="btn btn--secondary phone-card__btn" href="#compare" data-color="light-blue" aria-label="اكتشف الأزرق Light Blue">اكتشف الأزرق</a>
-                    <button class="btn btn--order phone-card__btn" type="button" data-order-color="light-blue">اطلب هذا اللون</button>
-                  </div>
-                </div>
-              </article>
-            </li>
-
-            <!-- Dark Cherry -->
-            <li class="collection__item" data-collection-item data-reveal>
-              <article class="phone-card" data-color="dark-cherry" tabindex="0">
-                <div class="phone-card__media">
-                  <picture>
-                    <source srcset="assets/images/phone-dark-cherry.webp" type="image/webp">
-                    <img src="assets/images/phone-dark-cherry.webp" width="800" height="1000" alt="هاتف بلون كرزي داكن Dark Cherry" loading="lazy" decoding="async">
-                  </picture>
-                  <div class="phone-card__fallback" aria-hidden="true">
-                    <span class="phone-placeholder phone-placeholder--dark-cherry"></span>
-                  </div>
-                </div>
-                <div class="phone-card__body">
-                  <div class="phone-card__name-row">
-                    <span class="phone-card__name">
-                      <span class="en">Dark Cherry</span>
-                      <span>الكرز الداكن</span>
-                    </span>
-                    <span class="phone-card__dot phone-card__dot--dark-cherry" aria-hidden="true"></span>
-                  </div>
-                  <span class="phone-card__pantone en caption">Pantone 6076</span>
-                  <h3 class="phone-card__title">جرأة تحمل طابعًا خاصًا.</h3>
-                  <p class="phone-card__desc">درجة عميقة وغنية تجمع بين الفخامة والتميّز، لمن يفضّل الألوان التي تترك انطباعًا من النظرة الأولى.</p>
-                  <div class="phone-card__actions">
-                    <a class="btn btn--secondary phone-card__btn" href="#compare" data-color="dark-cherry" aria-label="اكتشف الكرز الداكن Dark Cherry">اكتشف الكرز الداكن</a>
-                    <button class="btn btn--order phone-card__btn" type="button" data-order-color="dark-cherry">اطلب هذا اللون</button>
-                  </div>
-                </div>
-              </article>
-            </li>
-
-            <!-- Dark Gray -->
-            <li class="collection__item" data-collection-item data-reveal>
-              <article class="phone-card" data-color="dark-gray" tabindex="0">
-                <div class="phone-card__media">
-                  <picture>
-                    <source srcset="assets/images/phone-dark-gray.webp" type="image/webp">
-                    <img src="assets/images/phone-dark-gray.webp" width="800" height="1000" alt="هاتف بلون رمادي داكن Dark Gray" loading="lazy" decoding="async">
-                  </picture>
-                  <div class="phone-card__fallback" aria-hidden="true">
-                    <span class="phone-placeholder phone-placeholder--dark-gray"></span>
-                  </div>
-                </div>
-                <div class="phone-card__body">
-                  <div class="phone-card__name-row">
-                    <span class="phone-card__name">
-                      <span class="en">Dark Gray</span>
-                      <span>الرمادي الداكن</span>
-                    </span>
-                    <span class="phone-card__dot phone-card__dot--dark-gray" aria-hidden="true"></span>
-                  </div>
-                  <span class="phone-card__pantone en caption">Pantone 426C</span>
-                  <h3 class="phone-card__title">قوة في أبسط تفاصيلها.</h3>
-                  <p class="phone-card__desc">لون متوازن بطابع عملي وأنيق، يجمع بين المظهر العصري والهدوء الذي لا يفقد جاذبيته مع الوقت.</p>
-                  <div class="phone-card__actions">
-                    <a class="btn btn--secondary phone-card__btn" href="#compare" data-color="dark-gray" aria-label="اكتشف الرمادي الداكن Dark Gray">اكتشف الرمادي الداكن</a>
-                    <button class="btn btn--order phone-card__btn" type="button" data-order-color="dark-gray">اطلب هذا اللون</button>
-                  </div>
-                </div>
-              </article>
-            </li>
-
-            <!-- Silver -->
-            <li class="collection__item" data-collection-item data-reveal>
-              <article class="phone-card" data-color="silver" tabindex="0">
-                <div class="phone-card__media">
-                  <picture>
-                    <source srcset="assets/images/phone-silver.webp" type="image/webp">
-                    <img src="assets/images/phone-silver.webp" width="800" height="1000" alt="هاتف بلون فضي Silver" loading="lazy" decoding="async">
-                  </picture>
-                  <div class="phone-card__fallback" aria-hidden="true">
-                    <span class="phone-placeholder phone-placeholder--silver"></span>
-                  </div>
-                </div>
-                <div class="phone-card__body">
-                  <div class="phone-card__name-row">
-                    <span class="phone-card__name">
-                      <span class="en">Silver</span>
-                      <span>الفضي</span>
-                    </span>
-                    <span class="phone-card__dot phone-card__dot--silver" aria-hidden="true"></span>
-                  </div>
-                  <span class="phone-card__pantone en caption">Pantone 427C</span>
-                  <h3 class="phone-card__title">أناقة تتجاوز الزمن.</h3>
-                  <p class="phone-card__desc">لون فضي نقي يعكس البساطة والرقي، ويمنح الهاتف مظهرًا كلاسيكيًا يناسب مختلف الأذواق.</p>
-                  <div class="phone-card__actions">
-                    <a class="btn btn--secondary phone-card__btn" href="#compare" data-color="silver" aria-label="اكتشف الفضي Silver">اكتشف الفضي</a>
-                    <button class="btn btn--order phone-card__btn" type="button" data-order-color="silver">اطلب هذا اللون</button>
-                  </div>
-                </div>
-              </article>
-            </li>
-          </ul>
+          <ul class="collection__grid collection__grid--strip" data-collection-grid role="list"></ul>
         </div>
         <div class="collection__dots" data-collection-dots role="group" aria-label="نقاط التنقل في شريط المجموعة"></div>
       </div>
     </section>
     <!-- نهاية Collection -->
+
+    <!-- ===== Gallery ===== -->
+    <section id="gallery" class="section section--main gallery" aria-labelledby="gallery-title">
+      <div class="container">
+        <div class="section-head gallery__head" data-reveal>
+          <h2 id="gallery-title" class="section-title">معرض الصور</h2>
+          <p class="body-text">استعرض الهاتف عن قرب وتنقّل بين اللقطات المتوفرة لكل لون.</p>
+        </div>
+
+        <div class="gallery" data-gallery>
+          <div class="gallery__switcher" data-gallery-switcher role="group" aria-label="اختيار لون الهاتف"></div>
+
+          <div class="gallery__layout">
+            <div class="gallery__stage-wrap">
+              <button class="gallery__stage" type="button" data-gallery-open aria-label="فتح معرض الصور بالحجم الكامل">
+                <img class="gallery__main-img" data-gallery-main width="1200" height="1500" alt="" loading="eager" decoding="async">
+              </button>
+
+              <div class="gallery__placeholder" data-gallery-placeholder hidden>
+                <span class="gallery__placeholder-mark" aria-hidden="true"></span>
+                <p class="gallery__placeholder-text">صور هذا اللون قيد الإضافة</p>
+              </div>
+
+              <div class="gallery__meta" data-gallery-meta>
+                <p class="gallery__caption" data-gallery-caption></p>
+                <p class="gallery__counter num" data-gallery-counter></p>
+              </div>
+            </div>
+
+            <div class="gallery__thumbs-wrap" data-gallery-thumbs-wrap>
+              <div class="gallery__thumbs" data-gallery-thumbs role="group" aria-label="صور الهاتف"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- نهاية Gallery -->
 
     <!-- ===== Color Philosophy (step 4) ===== -->
     <section id="philosophy" class="section section--dark philosophy" aria-labelledby="philosophy-title">
@@ -303,7 +281,7 @@
     <!-- نهاية Color Philosophy -->
 
     <!-- ===== Find Your Style (step 4) ===== -->
-    <section id="style" class="section style-finder" aria-labelledby="style-title">
+    <section id="style" class="section section--main style-finder" aria-labelledby="style-title">
       <div class="container">
         <div class="section-head" data-reveal>
           <h2 id="style-title" class="section-title">اختيارك يبدأ من شخصيتك.</h2>
@@ -416,7 +394,7 @@
           </div>
 
           <div class="style-finder__result" data-reveal>
-            <div class="style-result" data-style-result aria-live="polite" aria-atomic="true">
+            <div class="card style-result" data-style-result aria-live="polite" aria-atomic="true">
               <div class="style-result__empty">
                 <div class="style-result__ghosts" aria-hidden="true">
                   <span class="phone-placeholder phone-placeholder--light-blue"></span>
@@ -469,24 +447,8 @@
         </div>
 
         <div class="specs__grid">
-          <!-- Center image (fallback handled in JS via the error event). -->
-          <div class="specs__media" data-specs-media>
-            <picture class="specs__picture">
-              <source type="image/webp" srcset="assets/images/specs-phone.webp">
-              <img class="specs__img" data-specs-img src="assets/images/specs-phone.webp" width="900" height="1200" loading="lazy" decoding="async" alt="هاتف بزاوية تُظهر الكاميرات والهيكل">
-            </picture>
-
-            <!-- Polished fallback: reuses the Color Philosophy phone component. -->
-            <div class="specs__fallback" aria-hidden="true">
-              <div class="philosophy-phone philosophy-phone--specs">
-                <span class="philosophy-phone__module">
-                  <span class="philosophy-phone__lens philosophy-phone__lens--1"></span>
-                  <span class="philosophy-phone__lens philosophy-phone__lens--2"></span>
-                  <span class="philosophy-phone__lens philosophy-phone__lens--3"></span>
-                  <span class="philosophy-phone__flash"></span>
-                </span>
-              </div>
-            </div>
+          <div class="specs__media">
+            <img class="specs__img" src="assets/images/specs-phone.jpeg" width="736" height="962" loading="lazy" decoding="async" data-reveal alt="هاتف iPhone بلون أسود من الخلف ومن الجانب">
           </div>
 
           <!-- DOM order stays 1..6; desktop placement is done in CSS only. -->
@@ -584,171 +546,20 @@
         </div>
 
         <div class="specs__cta">
-          <a class="btn btn--order" href="#order" data-order-cta>اطلب هاتفك الآن</a>
+          <a class="btn btn--primary" href="#order" data-order-cta>اطلب هاتفك الآن</a>
           <!-- When a dedicated technical specs page exists, point this to it (e.g. specs.html). -->
-          <a class="btn btn--light" href="#compare">استكشف المواصفات</a>
+          <a class="btn btn--secondary" href="#collection">استكشف المواصفات</a>
         </div>
       </div>
     </section>
     <!-- نهاية Specs -->
-
-    <!-- ===== Compare the Colors (step 6) ===== -->
-    <!-- No prices, storage, models or specs belong in these cards. If the
-         products later differ by model, storage, or price, those fields can
-         be added to each card (and rendered from a data source) then. -->
-    <section id="compare" class="section compare" aria-labelledby="compare-title">
-      <div class="container">
-        <div class="section-head" data-reveal>
-          <h2 id="compare-title" class="section-title">أربعة خيارات. أيّها يناسبك؟</h2>
-          <p class="body-text">قارن بين درجات المجموعة واختر اللون الذي تفضّله.</p>
-        </div>
-
-        <ul class="compare__grid" role="list">
-          <!-- Light Blue -->
-          <li class="compare__item" data-reveal>
-            <article class="compare-card" data-color="light-blue" data-compare-key="light-blue">
-              <div class="compare-card__media">
-                <button class="compare-card__toggle" type="button" aria-pressed="false" aria-label="تمييز اللون الأزرق الفاتح">
-                  <picture>
-                    <source srcset="assets/images/phone-light-blue.webp" type="image/webp">
-                    <img src="assets/images/phone-light-blue.webp" width="400" height="500" loading="lazy" decoding="async" alt="هاتف بلون أزرق فاتح Light Blue">
-                  </picture>
-                  <span class="compare-card__placeholder" aria-hidden="true">
-                    <span class="phone-placeholder phone-placeholder--light-blue"></span>
-                  </span>
-                </button>
-                <span class="compare-card__check" aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                    <path d="M5 12.5l4.5 4.5L19 7"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="compare-card__body">
-                <div class="compare-card__names">
-                  <span class="compare-card__dot phone-card__dot phone-card__dot--light-blue" aria-hidden="true"></span>
-                  <span class="compare-card__name-en en" data-compare-name-en>Light Blue</span>
-                  <span class="compare-card__name-ar" data-compare-name-ar>الأزرق الفاتح</span>
-                </div>
-                <p class="compare-card__character" data-compare-character>هادئ وعصري</p>
-                <p class="compare-card__pantone en caption" data-compare-pantone>Pantone 2121</p>
-                <button class="btn btn--secondary compare-card__btn" type="button" data-compare-discover="light-blue">اكتشف اللون</button>
-              </div>
-            </article>
-          </li>
-
-          <!-- Dark Cherry -->
-          <li class="compare__item" data-reveal>
-            <article class="compare-card" data-color="dark-cherry" data-compare-key="dark-cherry">
-              <div class="compare-card__media">
-                <button class="compare-card__toggle" type="button" aria-pressed="false" aria-label="تمييز اللون الكرز الداكن">
-                  <picture>
-                    <source srcset="assets/images/phone-dark-cherry.webp" type="image/webp">
-                    <img src="assets/images/phone-dark-cherry.webp" width="400" height="500" loading="lazy" decoding="async" alt="هاتف بلون كرزي داكن Dark Cherry">
-                  </picture>
-                  <span class="compare-card__placeholder" aria-hidden="true">
-                    <span class="phone-placeholder phone-placeholder--dark-cherry"></span>
-                  </span>
-                </button>
-                <span class="compare-card__check" aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                    <path d="M5 12.5l4.5 4.5L19 7"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="compare-card__body">
-                <div class="compare-card__names">
-                  <span class="compare-card__dot phone-card__dot phone-card__dot--dark-cherry" aria-hidden="true"></span>
-                  <span class="compare-card__name-en en" data-compare-name-en>Dark Cherry</span>
-                  <span class="compare-card__name-ar" data-compare-name-ar>الكرز الداكن</span>
-                </div>
-                <p class="compare-card__character" data-compare-character>عميق وجريء</p>
-                <p class="compare-card__pantone en caption" data-compare-pantone>Pantone 6076</p>
-                <button class="btn btn--secondary compare-card__btn" type="button" data-compare-discover="dark-cherry">اكتشف اللون</button>
-              </div>
-            </article>
-          </li>
-
-          <!-- Dark Gray -->
-          <li class="compare__item" data-reveal>
-            <article class="compare-card" data-color="dark-gray" data-compare-key="dark-gray">
-              <div class="compare-card__media">
-                <button class="compare-card__toggle" type="button" aria-pressed="false" aria-label="تمييز اللون الرمادي الداكن">
-                  <picture>
-                    <source srcset="assets/images/phone-dark-gray.webp" type="image/webp">
-                    <img src="assets/images/phone-dark-gray.webp" width="400" height="500" loading="lazy" decoding="async" alt="هاتف بلون رمادي داكن Dark Gray">
-                  </picture>
-                  <span class="compare-card__placeholder" aria-hidden="true">
-                    <span class="phone-placeholder phone-placeholder--dark-gray"></span>
-                  </span>
-                </button>
-                <span class="compare-card__check" aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                    <path d="M5 12.5l4.5 4.5L19 7"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="compare-card__body">
-                <div class="compare-card__names">
-                  <span class="compare-card__dot phone-card__dot phone-card__dot--dark-gray" aria-hidden="true"></span>
-                  <span class="compare-card__name-en en" data-compare-name-en>Dark Gray</span>
-                  <span class="compare-card__name-ar" data-compare-name-ar>الرمادي الداكن</span>
-                </div>
-                <p class="compare-card__character" data-compare-character>عملي ومتوازن</p>
-                <p class="compare-card__pantone en caption" data-compare-pantone>Pantone 426C</p>
-                <button class="btn btn--secondary compare-card__btn" type="button" data-compare-discover="dark-gray">اكتشف اللون</button>
-              </div>
-            </article>
-          </li>
-
-          <!-- Silver -->
-          <li class="compare__item" data-reveal>
-            <article class="compare-card" data-color="silver" data-compare-key="silver">
-              <div class="compare-card__media">
-                <button class="compare-card__toggle" type="button" aria-pressed="false" aria-label="تمييز اللون الفضي">
-                  <picture>
-                    <source srcset="assets/images/phone-silver.webp" type="image/webp">
-                    <img src="assets/images/phone-silver.webp" width="400" height="500" loading="lazy" decoding="async" alt="هاتف بلون فضي Silver">
-                  </picture>
-                  <span class="compare-card__placeholder" aria-hidden="true">
-                    <span class="phone-placeholder phone-placeholder--silver"></span>
-                  </span>
-                </button>
-                <span class="compare-card__check" aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                    <path d="M5 12.5l4.5 4.5L19 7"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="compare-card__body">
-                <div class="compare-card__names">
-                  <span class="compare-card__dot phone-card__dot phone-card__dot--silver" aria-hidden="true"></span>
-                  <span class="compare-card__name-en en" data-compare-name-en>Silver</span>
-                  <span class="compare-card__name-ar" data-compare-name-ar>الفضي</span>
-                </div>
-                <p class="compare-card__character" data-compare-character>كلاسيكي وأنيق</p>
-                <p class="compare-card__pantone en caption" data-compare-pantone>Pantone 427C</p>
-                <button class="btn btn--secondary compare-card__btn" type="button" data-compare-discover="silver">اكتشف اللون</button>
-              </div>
-            </article>
-          </li>
-        </ul>
-
-        <p class="compare__note">الألوان المعروضة تقريبية للتوضيح وقد تختلف عن اللون الفعلي.</p>
-        <p class="compare__closing">خذ وقتك في الاختيار، فالتفاصيل الصغيرة تصنع فرقًا كبيرًا.</p>
-
-        <div class="compare__cta">
-          <a class="btn btn--order" href="#order" data-order-cta>اطلب هاتفك الآن</a>
-        </div>
-      </div>
-    </section>
-    <!-- نهاية Compare -->
 
     <!-- ===== Why Choose Us (step 6) ===== -->
     <!-- Use these texts only if the described services actually exist. Do not
          promise warranty, support, or return policies that are not real. If
          the site is informational only, replace this section with: collection
          advantages, quality of information, ease of discovering colors. -->
-    <section id="trust" class="section section--white trust" aria-labelledby="trust-title">
+    <section id="trust" class="section section--alt trust" aria-labelledby="trust-title">
       <div class="container">
         <div class="section-head" data-reveal>
           <h2 id="trust-title" class="section-title">لماذا تختارنا؟</h2>
@@ -816,7 +627,7 @@
     <!-- ===== FAQ (step 7) ===== -->
     <!-- Generic answers only: replace them with the real policies, prices and
          warranty conditions before launch. -->
-    <section id="faq" class="section faq" aria-labelledby="faq-title">
+    <section id="faq" class="section section--main faq" aria-labelledby="faq-title">
       <div class="container faq__container">
         <div class="section-head faq__head" data-reveal>
           <h2 id="faq-title" class="section-title">الأسئلة الشائعة</h2>
@@ -900,14 +711,14 @@
     <!-- ===== Order (step 9) ===== -->
     <!-- Colour options are built from PhoneSite.colors in js/main.js.
          Validation, sending and status states are handled there too. -->
-    <section id="order" class="section order" aria-labelledby="order-title">
+    <section id="order" class="section section--card order" aria-labelledby="order-title">
       <div class="container">
         <div class="section-head order__head" data-reveal>
           <h2 id="order-title" class="section-title">أكمل طلبك</h2>
           <p class="body-text">اختر لون الهاتف وأدخل بياناتك، ثم راجع ملخص الطلب قبل الإرسال.</p>
         </div>
 
-        <div class="order__card" data-reveal>
+        <div class="card order__card" data-reveal>
           <form class="order__form" id="order-form" novalidate data-order-form>
             <div class="visually-hidden" aria-hidden="true">
               <label for="order-website">Website</label>
@@ -989,23 +800,23 @@
                 </div>
                 <div class="order-summary__row">
                   <dt class="order-summary__label">الكمية</dt>
-                  <dd class="order-summary__value"><span data-summary-quantity>1</span></dd>
+                  <dd class="order-summary__value num"><span data-summary-quantity>1</span></dd>
                 </div>
                 <div class="order-summary__row" data-summary-unit hidden>
                   <dt class="order-summary__label">سعر الوحدة</dt>
-                  <dd class="order-summary__value" data-summary-unit-value></dd>
+                  <dd class="order-summary__value num" data-summary-unit-value></dd>
                 </div>
                 <div class="order-summary__row" data-summary-subtotal hidden>
                   <dt class="order-summary__label">الإجمالي الفرعي</dt>
-                  <dd class="order-summary__value" data-summary-subtotal-value></dd>
+                  <dd class="order-summary__value num" data-summary-subtotal-value></dd>
                 </div>
                 <div class="order-summary__row" data-summary-delivery hidden>
                   <dt class="order-summary__label">التوصيل</dt>
-                  <dd class="order-summary__value" data-summary-delivery-value></dd>
+                  <dd class="order-summary__value num" data-summary-delivery-value></dd>
                 </div>
                 <div class="order-summary__row order-summary__row--total" data-summary-total hidden>
                   <dt class="order-summary__label">الإجمالي النهائي</dt>
-                  <dd class="order-summary__value" data-summary-total-value></dd>
+                  <dd class="order-summary__value num" data-summary-total-value></dd>
                 </div>
               </dl>
             </div>
@@ -1013,7 +824,7 @@
             <div class="order-banner" data-order-banner role="alert" aria-live="assertive" hidden></div>
 
             <div class="order__actions">
-              <button class="btn btn--order order__submit" type="submit" data-order-submit>
+              <button class="btn btn--primary order__submit" type="submit" data-order-submit>
                 <span class="order-spinner" data-order-spinner hidden aria-hidden="true"></span>
                 <span data-order-submit-label>إرسال الطلب</span>
               </button>
@@ -1045,17 +856,11 @@
       <div class="container final-cta__inner">
         <h2 id="cta-title" class="final-cta__title" data-reveal>وجدت اللون الذي يشبهك؟</h2>
         <p class="body-text final-cta__lead" data-reveal>اكتشف المجموعة، قارن التفاصيل، واختر هاتفك القادم بثقة.</p>
-        <a class="btn btn--light final-cta__action" href="#collection" data-reveal>اختر هاتفك الآن</a>
+        <a class="btn btn--secondary final-cta__action" href="#collection" data-reveal>اختر هاتفك الآن</a>
       </div>
 
-      <div class="final-cta__media" aria-hidden="true">
-        <img class="final-cta__img" src="assets/images/cta-phones.webp" width="1400" height="700" loading="lazy" decoding="async" alt="">
-        <div class="final-cta__fallback" aria-hidden="true">
-          <span class="phone-placeholder phone-placeholder--light-blue"></span>
-          <span class="phone-placeholder phone-placeholder--dark-cherry"></span>
-          <span class="phone-placeholder phone-placeholder--dark-gray"></span>
-          <span class="phone-placeholder phone-placeholder--silver"></span>
-        </div>
+      <div class="final-cta__media">
+        <img class="final-cta__img" src="assets/images/final-cta-phones.jpeg" width="736" height="638" loading="lazy" decoding="async" data-reveal alt="مجموعة الهواتف الأربعة بألوان الأزرق الفاتح والكرز الداكن والرمادي الداكن والفضي">
       </div>
     </section>
     <!-- نهاية Final CTA -->
@@ -1114,5 +919,36 @@
       <path d="M6 14.5 12 8.5l6 6"></path>
     </svg>
   </button>
+
+  <div class="lightbox" data-lightbox role="dialog" aria-modal="true" aria-label="معرض صور الهاتف" aria-hidden="true" hidden>
+    <div class="lightbox__backdrop" data-lightbox-backdrop></div>
+    <div class="lightbox__dialog" data-lightbox-dialog tabindex="-1">
+      <button class="lightbox__close" type="button" data-lightbox-close aria-label="إغلاق المعرض">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false">
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
+
+      <button class="lightbox__nav lightbox__nav--prev" type="button" data-lightbox-prev aria-label="الصورة السابقة">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <path d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+
+      <figure class="lightbox__figure">
+        <img class="lightbox__img" data-lightbox-img width="1200" height="1500" alt="" decoding="async">
+        <figcaption class="lightbox__caption" data-lightbox-caption></figcaption>
+        <p class="lightbox__counter num" data-lightbox-counter></p>
+      </figure>
+
+      <button class="lightbox__nav lightbox__nav--next" type="button" data-lightbox-next aria-label="الصورة التالية">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <path d="M15 5l-7 7 7 7"></path>
+        </svg>
+      </button>
+
+      <p class="visually-hidden" data-lightbox-live aria-live="polite"></p>
+    </div>
+  </div>
 </body>
 </html>

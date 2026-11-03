@@ -13,10 +13,10 @@
 - **أقسام الصفحة**:
   - Hero مع حركة Parallax لطيفة.
   - مجموعة الهواتف (شريط أفقي قابل للتمرير مع نقاط تنقّل).
+  - معرض صور تفاعلي لكل لون مع عارض بالحجم الكامل.
   - فلسفة الألوان.
   - محدّد الأسلوب (Find Your Style) بنتيجة مباشرة ومعلنة لقارئات الشاشة.
   - المواصفات التقنية.
-  - مقارنة الألوان.
   - لماذا تختارنا (قابل للإخفاء).
   - الأسئلة الشائعة (Accordion).
   - نموذج طلب كامل مع ملخص مباشر.
@@ -88,12 +88,16 @@ python server.py
 
 | المفتاح | الاسم | HEX | Pantone |
 | --- | --- | --- | --- |
-| `light-blue` | الأزرق الفاتح | `#A8BCD9` | 2121 |
-| `dark-cherry` | الكرز الداكن | `#682D40` | 6076 |
-| `dark-gray` | الرمادي الداكن | `#3D3D3B` | 426C |
-| `silver` | الفضي | `#DAD9D5` | 427C |
+| `light-blue` | الأزرق الفاتح | `#A3C9E2` | 2121 |
+| `dark-cherry` | الكرز الداكن | `#581825` | 6076 |
+| `dark-gray` | الرمادي الداكن | `#2D3136` | 426C |
+| `silver` | الفضي | `#E2E8F0` | 427C |
 
-المصدر الوحيد لبيانات الألوان هو `PhoneSite.colors` داخل `js/main.js`، وتُستخدم تلقائيًا في بطاقات المجموعة ومحدّد الأسلوب والمقارنة.
+المصدر الوحيد لبيانات الألوان هو `PhoneSite.colors` داخل `js/main.js`، وتُستخدم تلقائيًا في بطاقات المجموعة ومحدّد الأسلوب والثيمات ونموذج الطلب.
+
+### نظام الثيمات
+
+لكل لون ثيم فاتح خاص به يُطبَّق عبر `PhoneSite.theme.set("light-blue" | "dark-cherry" | "dark-gray" | "silver")` ويُحفظ في `sessionStorage`. استخدم `PhoneSite.theme.get()` لمعرفة الثيم الحالي و`PhoneSite.theme.reset()` للعودة إلى الوضع المحايد، ويُطلق كل تغيير الحدث `phonesite:themechange` على `document`.
 
 ---
 
@@ -144,6 +148,29 @@ phone-silver.webp
 specs-phone.webp
 cta-phones.webp
 ```
+
+### صور المعرض
+
+يعرض قسم «معرض الصور» الصور الحقيقية المتوفرة للّون النشط فقط، بهذا الترتيب:
+
+```text
+assets/images/gallery/<color-key>/front.(webp|jpg|jpeg|png)
+assets/images/gallery/<color-key>/back.(webp|jpg|jpeg|png)
+assets/images/gallery/<color-key>/side.(webp|jpg|jpeg|png)
+assets/images/gallery/<color-key>/camera.(webp|jpg|jpeg|png)
+assets/images/gallery/<color-key>/edges.(webp|jpg|jpeg|png)
+assets/images/gallery/<color-key>/ad.(webp|jpg|jpeg|png)
+assets/images/gallery/<color-key>/design.(webp|jpg|jpeg|png)
+```
+
+- `color-key`: `light-blue` أو `dark-cherry` أو `dark-gray` أو `silver`.
+- تُجرّب الامتدادات بالترتيب: `webp` ثم `jpg` ثم `jpeg` ثم `png`.
+- لا تُعرض أي صورة إلا إذا كان ملفها موجودًا فعلًا؛ الفتحات الناقصة تُخفى تلقائيًا.
+- إذا لم توجد صورة واحدة للّون النشط تظهر رسالة «صور هذا اللون قيد الإضافة».
+- اللون الفضي: عند غياب `gallery/silver/ad.*` تُستخدم `assets/images/phone-silver.jpg` كصورة إعلانية.
+- لا تُستخدم `hero-phones.png` داخل المعرض.
+
+التسجيل الكامل موجود في `PhoneSite.images` داخل `js/main.js`، ويمكن تعديل المسارات أو التسميات من هناك دون تغيير بنية HTML.
 
 ---
 

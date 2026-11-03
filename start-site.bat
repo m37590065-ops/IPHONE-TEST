@@ -14,8 +14,14 @@ if %errorlevel%==0 (
   goto :end
 )
 
-echo Python 3 is required to run the local server.
-echo Install it from https://www.python.org/downloads/ and try again.
+where node >nul 2>nul
+if %errorlevel%==0 (
+  node "%~dp0server.js" %*
+  goto :end
+)
+
+echo Neither Python 3 nor Node.js was found.
+echo Please install Node.js from https://nodejs.org/ or Python from https://www.python.org/
 pause
 
 :end

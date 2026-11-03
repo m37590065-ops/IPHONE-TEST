@@ -76,7 +76,7 @@
   /**
    * Shared image-fallback: when a card photo is missing or fails to load,
    * show the CSS `.phone-placeholder` composition instead of the broken image.
-   * Used by the Collection, Color Philosophy, Specs and Compare cards.
+   * Used by the Collection, Color Philosophy and Specs cards.
    * @param {Element} container Element that receives the `is-fallback` class
    * @param {?Element} [img] Photo to watch; looked up inside `container` if omitted
    */
@@ -99,7 +99,13 @@
 
     photo.addEventListener("error", showFallback);
     photo.addEventListener("load", clearFallback);
-    if (photo.complete && photo.naturalWidth === 0) showFallback();
+    if (
+      photo.loading !== "lazy" &&
+      photo.complete &&
+      photo.naturalWidth === 0
+    ) {
+      showFallback();
+    }
   };
 
   /**
@@ -276,7 +282,9 @@
 
     if (!toggle || !nav || !overlay) return;
 
-    var desktopQuery = window.matchMedia("(min-width: 1024px)");
+    var closeButton = qs(".site-nav__close", nav);
+    var desktopQuery = window.matchMedia("(min-width: 900px)");
+    var root = document.documentElement;
     var isOpen = false;
 
     function panelFocusables() {
@@ -285,32 +293,39 @@
       });
     }
 
-    // Focusables in DOM order: panel items first, toggle last (wrap points).
-    function trapFocusables() {
-      return panelFocusables().concat([toggle]);
+    function focusIntoPanel() {
+      var target =
+        closeButton && closeButton.offsetParent !== null
+          ? closeButton
+          : panelFocusables()[0];
+      if (target) target.focus({ preventScroll: true });
     }
 
-    function focusFirstPanelItem() {
-      var first = panelFocusables()[0];
-      if (first) first.focus();
+    // The root uses `scrollbar-gutter: stable`, so hiding the scrollbar does
+    // not change the content width or shift the header.
+    function lockScroll() {
+      root.classList.add("is-menu-open");
+    }
+
+    function unlockScroll() {
+      root.classList.remove("is-menu-open");
+    }
+
+    function setToggleState(open) {
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      toggle.setAttribute("aria-label", open ? "إغلاق القائمة" : "فتح القائمة");
     }
 
     function openMenu() {
       if (isOpen) return;
       isOpen = true;
       header.classList.add("is-menu-open");
-      document.documentElement.classList.add("is-menu-open");
-      toggle.setAttribute("aria-expanded", "true");
+      setToggleState(true);
+      lockScroll();
 
-      // Wait for a style pass so the panel is actually visible before focusing.
+      // Wait for a style pass so the panel is visible before moving focus.
       window.requestAnimationFrame(function () {
-        window.requestAnimationFrame(function () {
-          if (getComputedStyle(nav).visibility === "visible") {
-            focusFirstPanelItem();
-          } else {
-            window.setTimeout(focusFirstPanelItem, 350);
-          }
-        });
+        window.requestAnimationFrame(focusIntoPanel);
       });
     }
 
@@ -318,15 +333,21 @@
       if (!isOpen) return;
       isOpen = false;
       header.classList.remove("is-menu-open");
-      document.documentElement.classList.remove("is-menu-open");
-      toggle.setAttribute("aria-expanded", "false");
-      if (returnFocus) toggle.focus();
+      setToggleState(false);
+      unlockScroll();
+      if (returnFocus) toggle.focus({ preventScroll: true });
     }
 
     toggle.addEventListener("click", function () {
       if (isOpen) closeMenu(true);
       else openMenu();
     });
+
+    if (closeButton) {
+      closeButton.addEventListener("click", function () {
+        closeMenu(true);
+      });
+    }
 
     overlay.addEventListener("click", function () {
       closeMenu(true);
@@ -348,8 +369,11 @@
 
       if (event.key !== "Tab") return;
 
-      var focusables = trapFocusables();
-      if (!focusables.length) return;
+      var focusables = panelFocusables();
+      if (!focusables.length) {
+        event.preventDefault();
+        return;
+      }
 
       var first = focusables[0];
       var last = focusables[focusables.length - 1];
@@ -366,10 +390,14 @@
       }
     });
 
+    function onDesktopChange(event) {
+      if (event.matches) closeMenu(false);
+    }
+
     if (typeof desktopQuery.addEventListener === "function") {
-      desktopQuery.addEventListener("change", function (event) {
-        if (event.matches) closeMenu(false);
-      });
+      desktopQuery.addEventListener("change", onDesktopChange);
+    } else if (typeof desktopQuery.addListener === "function") {
+      desktopQuery.addListener(onDesktopChange);
     }
   };
 
@@ -438,56 +466,335 @@
   };
 
   /* ----------------------------------------------------------------------
-     Collection (step 3): colors, image fallback, mobile dots, highlight
+     Collection: product data, image fallback, mobile dots, highlight
      ---------------------------------------------------------------------- */
-  PhoneSite.colors = [
-    {
-      key: "light-blue",
-      nameEn: "Light Blue",
-      nameAr: "الأزرق الفاتح",
-      pantone: "Pantone 2121",
-      hex: "#A8BCD9"
+  /* Palette per phone colour. These are the exact theme tokens used by
+     css/base.css; names, Pantone and HEX display values stay untouched. */
+  var COLOR_THEMES = {
+    "light-blue": {
+      base: "#A3C9E2",
+      snow: "#EAF4FA",
+      mist: "#DCEBF5",
+      calm: "#C5DDEB",
+      "cool-white": "#F7FBFD",
+      ink: "#29465C"
     },
-    {
-      key: "dark-cherry",
-      nameEn: "Dark Cherry",
-      nameAr: "الكرز الداكن",
-      pantone: "Pantone 6076",
-      hex: "#682D40"
+    "dark-cherry": {
+      base: "#581825",
+      soft: "#8B4654",
+      "rose-earth": "#EAD9DD",
+      "rose-gray": "#F2E9EB",
+      "warm-white": "#FCF8F8",
+      deep: "#35121A"
     },
-    {
-      key: "dark-gray",
-      nameEn: "Dark Gray",
-      nameAr: "الرمادي الداكن",
-      pantone: "Pantone 426C",
-      hex: "#3D3D3B"
+    "dark-gray": {
+      base: "#2D3136",
+      steel: "#555E68",
+      light: "#DCE0E5",
+      mist: "#ECEFF2",
+      "metal-white": "#F7F8FA",
+      charcoal: "#171B20"
     },
-    {
-      key: "silver",
-      nameEn: "Silver",
-      nameAr: "الفضي",
-      pantone: "Pantone 427C",
-      hex: "#DAD9D5"
+    "silver": {
+      base: "#E2E8F0",
+      light: "#F1F4F7",
+      metal: "#D4DCE5",
+      cool: "#E8EDF2",
+      pure: "#FFFFFF",
+      "metal-dark": "#687583"
     }
+  };
+
+  PhoneSite.colors =
+    typeof PhoneSite.listProducts === "function"
+      ? PhoneSite.listProducts().map(function (product) {
+          return {
+            key: product.id,
+            nameEn: product.nameEn,
+            nameAr: product.nameAr,
+            pantone: product.pantone,
+            hex: product.hex,
+            model: product.model,
+            theme: COLOR_THEMES[product.id] || null
+          };
+        })
+      : [];
+
+  PhoneSite.gallerySlots = [
+    { key: "front", label: "المنظر الأمامي" },
+    { key: "back", label: "المنظر الخلفي" },
+    { key: "side", label: "المنظر الجانبي" },
+    { key: "camera", label: "الكاميرا" },
+    { key: "edges", label: "الحواف" },
+    { key: "ad", label: "الصورة الإعلانية" },
+    { key: "design", label: "التصميم" }
   ];
 
+  PhoneSite.galleryExtensions = ["webp", "jpg", "jpeg", "png"];
+
+  var GALLERY_IMAGES = {
+    "light-blue": {
+      front: { src: "assets/images/gallery/light-blue/front.jpeg" }
+    },
+    "dark-cherry": {
+      front: { src: "assets/images/gallery/dark-cherry/front.jpeg" }
+    },
+    "dark-gray": {
+      front: { src: "assets/images/gallery/dark-gray/front.jpeg" }
+    },
+    "silver": {
+      ad: {
+        src: "assets/images/gallery/silver/ad.jpg",
+        fallback: "assets/images/phone-silver.jpg"
+      }
+    }
+  };
+
+  PhoneSite.images = PhoneSite.images || {};
+
+  PhoneSite.colors.forEach(function (color) {
+    var colorImages = PhoneSite.images[color.key];
+
+    if (!colorImages || typeof colorImages !== "object") {
+      colorImages = PhoneSite.images[color.key] = {};
+    }
+
+    PhoneSite.gallerySlots.forEach(function (slot) {
+      var entry = colorImages[slot.key];
+      var known = GALLERY_IMAGES[color.key] && GALLERY_IMAGES[color.key][slot.key];
+
+      if (!entry || typeof entry !== "object") {
+        entry = colorImages[slot.key] = {};
+      }
+
+      if (known) {
+        Object.keys(known).forEach(function (property) {
+          entry[property] = known[property];
+        });
+      }
+
+      if (!entry.path) {
+        entry.path = "assets/images/gallery/" + color.key + "/" + slot.key;
+      }
+
+      if (!Array.isArray(entry.extensions) || !entry.extensions.length) {
+        entry.extensions = PhoneSite.galleryExtensions.slice();
+      }
+
+      if (!entry.label) entry.label = slot.label;
+
+      if (!entry.alt) {
+        entry.alt = "هاتف " + color.nameAr + " - " + slot.label;
+      }
+    });
+
+    if (color.key === "silver" && colorImages.ad && !colorImages.ad.fallback) {
+      colorImages.ad.fallback = "assets/images/phone-silver.jpg";
+    }
+  });
+
+  function createCollectionCard(product) {
+    var card = document.createElement("article");
+    card.className = "card card--product phone-card";
+    card.setAttribute("data-color", product.id);
+
+    var media = document.createElement("div");
+    media.className = "phone-card__media";
+
+    var picture = document.createElement("picture");
+    picture.className = "phone-card__picture";
+
+    var frontImage = PhoneSite.getProductImage(product, "front");
+
+    var source = document.createElement("source");
+    source.type = /\.jpe?g(?:$|[?#])/i.test(frontImage)
+      ? "image/jpeg"
+      : "image/webp";
+    source.setAttribute("srcset", frontImage);
+
+    var image = document.createElement("img");
+    image.className = "phone-card__img";
+    image.width = product.imageWidth || 800;
+    image.height = product.imageHeight || 1000;
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.setAttribute("src", frontImage);
+    image.setAttribute(
+      "alt",
+      product.imageAlt || "هاتف بلون " + product.nameAr + " " + product.nameEn
+    );
+
+    picture.appendChild(source);
+    picture.appendChild(image);
+
+    var fallback = document.createElement("div");
+    fallback.className = "phone-card__fallback";
+    fallback.setAttribute("aria-hidden", "true");
+
+    if (product.id === "silver") {
+      var placeholder = document.createElement("span");
+      placeholder.className = "phone-placeholder phone-placeholder--silver";
+      fallback.appendChild(placeholder);
+    } else if (
+      product.id !== "dark-cherry" &&
+      product.id !== "light-blue" &&
+      product.id !== "dark-gray"
+    ) {
+      var swatch = document.createElement("span");
+      swatch.className = "phone-card__swatch";
+      swatch.style.backgroundColor = product.hex;
+
+      var fallbackText = document.createElement("span");
+      fallbackText.className = "phone-card__fallback-text";
+      fallbackText.textContent = "صورة اللون قيد الإضافة";
+
+      fallback.appendChild(swatch);
+      fallback.appendChild(fallbackText);
+    }
+
+    media.appendChild(picture);
+
+    if (
+      product.id !== "dark-cherry" &&
+      product.id !== "light-blue" &&
+      product.id !== "dark-gray"
+    ) {
+      media.appendChild(fallback);
+    }
+
+    var body = document.createElement("div");
+    body.className = "phone-card__body";
+
+    var meta = document.createElement("div");
+    meta.className = "phone-card__meta";
+
+    var names = document.createElement("span");
+    names.className = "phone-card__name";
+
+    var nameAr = document.createElement("span");
+    nameAr.className = "phone-card__name-ar";
+    nameAr.textContent = product.nameAr;
+
+    var nameEn = document.createElement("span");
+    nameEn.className = "phone-card__name-en en";
+    nameEn.lang = "en";
+    nameEn.textContent = product.nameEn;
+
+    var dot = document.createElement("span");
+    dot.className = "phone-card__dot phone-card__dot--" + product.id;
+    dot.setAttribute("aria-hidden", "true");
+
+    var pantone = document.createElement("span");
+    pantone.className = "phone-card__pantone en caption";
+    pantone.textContent = product.pantone;
+
+    var title = document.createElement("h3");
+    title.className = "phone-card__title";
+    title.textContent = product.headline;
+
+    var description = document.createElement("p");
+    description.className = "phone-card__desc";
+    description.textContent = product.description;
+
+    var link = document.createElement("a");
+    link.className = "btn btn--secondary phone-card__btn";
+    link.href = "#style";
+    link.setAttribute("data-color", product.id);
+    link.setAttribute(
+      "aria-label",
+      "اكتشف " + product.nameAr + " " + product.nameEn
+    );
+    link.textContent = product.button;
+
+    link.addEventListener("click", function () {
+      var event;
+
+      if (PhoneSite.theme) PhoneSite.theme.set(product.id);
+
+      if (typeof window.CustomEvent === "function") {
+        event = new CustomEvent("phone:select", {
+          bubbles: true,
+          detail: { id: product.id }
+        });
+      } else {
+        event = document.createEvent("CustomEvent");
+        event.initCustomEvent("phone:select", true, false, { id: product.id });
+      }
+
+      card.dispatchEvent(event);
+    });
+
+    names.appendChild(nameAr);
+    names.appendChild(nameEn);
+    meta.appendChild(dot);
+    meta.appendChild(names);
+    body.appendChild(meta);
+    body.appendChild(pantone);
+    body.appendChild(title);
+    body.appendChild(description);
+    body.appendChild(link);
+
+    card.appendChild(media);
+    card.appendChild(body);
+
+    if (
+      product.id !== "silver" &&
+      product.id !== "dark-cherry" &&
+      product.id !== "light-blue" &&
+      product.id !== "dark-gray"
+    ) {
+      card.classList.add("is-fallback");
+    }
+
+    return card;
+  }
+
   /**
-   * Swap in the CSS phone composition when a card image is missing,
-   * then wire the mobile strip dots to the nearest card.
+   * Render the four products from products.js, then wire image fallback
+   * and the mobile strip dots to the nearest card.
    */
   PhoneSite.initCollection = function () {
-    var cards = qsa(".phone-card");
+    var grid = qs("[data-collection-grid]");
+    if (!grid) return;
 
-    cards.forEach(function (card) {
-      PhoneSite.bindImageFallback(card);
+    var products =
+      typeof PhoneSite.listProducts === "function"
+        ? PhoneSite.listProducts()
+        : [];
+
+    if (!products.length) return;
+
+    grid.innerHTML = "";
+
+    var fragment = document.createDocumentFragment();
+
+    products.forEach(function (product) {
+      var item = document.createElement("li");
+      item.className = "collection__item";
+      item.setAttribute("data-collection-item", "");
+      item.setAttribute("data-reveal", "");
+
+      var card = createCollectionCard(product);
+      var image = qs(".phone-card__img", card);
+
+      PhoneSite.bindImageFallback(card, image);
+      if (image && image.complete && image.naturalWidth > 0) {
+        card.classList.remove("is-fallback");
+      }
+
+      item.appendChild(card);
+      fragment.appendChild(item);
     });
+
+    grid.appendChild(fragment);
 
     var strip = qs("[data-collection-strip]");
     var dotsWrap = qs("[data-collection-dots]");
     if (!strip || !dotsWrap) return;
 
+    dotsWrap.innerHTML = "";
+
     var items = qsa("[data-collection-item]", strip);
-    if (!items.length) return;
 
     var dots = items.map(function (item, index) {
       var dot = document.createElement("button");
@@ -563,9 +870,13 @@
    * @param {string} colorKey One of PhoneSite.colors[].key
    */
   PhoneSite.highlightCard = function (colorKey) {
-    var isValid = PhoneSite.colors.some(function (color) {
+    var validColors = Array.isArray(PhoneSite.colors) ? PhoneSite.colors : [];
+    var isValid = validColors.some(function (color) {
       return color.key === colorKey;
     });
+    if (!isValid && typeof PhoneSite.getProduct === "function") {
+      isValid = !!PhoneSite.getProduct(colorKey);
+    }
     if (!isValid) return;
 
     var card = qs('.phone-card[data-color="' + colorKey + '"]');
@@ -587,98 +898,6 @@
     window.setTimeout(function () {
       card.classList.remove("is-highlighted");
     }, 1800);
-  };
-
-  /* ----------------------------------------------------------------------
-     Compare the Colors + Why Choose Us (step 6)
-     ---------------------------------------------------------------------- */
-
-  /* Character line per colour, defined once here and rendered into the cards
-     (the static HTML carries the same text as a no-JavaScript fallback). */
-  PhoneSite.compareCharacters = {
-    "light-blue": "هادئ وعصري",
-    "dark-cherry": "عميق وجريء",
-    "dark-gray": "عملي ومتوازن",
-    "silver": "كلاسيكي وأنيق"
-  };
-
-  /**
-   * Toggle the "active" colour card (only one at a time).
-   * @param {?Element} card Card to activate
-   * @param {boolean} [force] Activate even if already active (no toggle off)
-   */
-  function setActiveCompare(card, force) {
-    var grid = qs(".compare__grid");
-    var cards = qsa(".compare-card");
-
-    var next =
-      card && (force || !card.classList.contains("is-active")) ? card : null;
-
-    cards.forEach(function (item) {
-      var isActive = item === next;
-      item.classList.toggle("is-active", isActive);
-
-      var toggle = qs(".compare-card__toggle", item);
-      if (toggle) toggle.setAttribute("aria-pressed", isActive ? "true" : "false");
-    });
-
-    if (grid) grid.classList.toggle("has-active", !!next);
-  }
-
-  /**
-   * Compare cards: fill names/Pantone/character from a single source of truth,
-   * wire the shared image fallback and the card interactions.
-   */
-  PhoneSite.initCompare = function () {
-    qsa(".compare-card").forEach(function (card) {
-      var key = card.getAttribute("data-compare-key");
-      var color = PhoneSite.getColor(key);
-
-      if (color) {
-        var nameEn = qs("[data-compare-name-en]", card);
-        var nameAr = qs("[data-compare-name-ar]", card);
-        var pantone = qs("[data-compare-pantone]", card);
-        if (nameEn) nameEn.textContent = color.nameEn;
-        if (nameAr) nameAr.textContent = color.nameAr;
-        if (pantone) pantone.textContent = color.pantone;
-
-        var toggleLabel = qs(".compare-card__toggle", card);
-        if (toggleLabel) {
-          toggleLabel.setAttribute("aria-label", "تمييز اللون " + color.nameAr);
-        }
-      }
-
-      var character = qs("[data-compare-character]", card);
-      if (character && PhoneSite.compareCharacters[key]) {
-        character.textContent = PhoneSite.compareCharacters[key];
-      }
-
-      PhoneSite.bindImageFallback(card);
-
-      var toggle = qs(".compare-card__toggle", card);
-      if (toggle) {
-        toggle.addEventListener("click", function () {
-          setActiveCompare(card);
-        });
-      }
-
-      var discover = qs("[data-compare-discover]", card);
-      if (discover) {
-        discover.addEventListener("click", function () {
-          PhoneSite.highlightCard(discover.getAttribute("data-compare-discover"));
-        });
-      }
-    });
-  };
-
-  /**
-   * Mark one colour card active (unknown keys are ignored). Exposed for tests.
-   * @param {string} colorKey One of PhoneSite.colors[].key
-   */
-  PhoneSite.focusCompare = function (colorKey) {
-    if (!PhoneSite.getColor(colorKey)) return;
-    var card = qs('.compare-card[data-compare-key="' + colorKey + '"]');
-    if (card) setActiveCompare(card, true);
   };
 
   /* ----------------------------------------------------------------------
@@ -706,6 +925,833 @@
       })[0] || null
     );
   };
+
+  /* ----------------------------------------------------------------------
+     Theme engine: neutral by default, one palette per phone colour.
+     The CSS side lives in css/base.css ([data-theme] on <html>).
+     ---------------------------------------------------------------------- */
+  PhoneSite.theme = (function () {
+    var STORAGE_KEY = "phonesite:theme";
+    var root = document.documentElement;
+    var current = null;
+
+    /* Registered custom properties interpolate by themselves. Only browsers
+       without them need the solid background transitions used as a fallback. */
+    if (window.CSS && typeof window.CSS.registerProperty === "function") {
+      root.classList.add("has-registered-props");
+    }
+
+    function isValid(key) {
+      return PhoneSite.colors.some(function (color) {
+        return color.key === key;
+      });
+    }
+
+    function save(key) {
+      try {
+        if (key) {
+          window.sessionStorage.setItem(STORAGE_KEY, key);
+        } else {
+          window.sessionStorage.removeItem(STORAGE_KEY);
+        }
+      } catch (error) {
+        /* Storage can be blocked; the theme still works for this page view. */
+      }
+    }
+
+    function read() {
+      try {
+        var key = window.sessionStorage.getItem(STORAGE_KEY);
+        return key && isValid(key) ? key : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    /**
+     * Keep the visible colour controls in step with the active theme.
+     * Never dispatches change events, so it cannot loop back into set().
+     */
+    function syncControls(key) {
+      qsa(".phone-card[data-color]").forEach(function (card) {
+        if (key && card.getAttribute("data-color") === key) {
+          card.setAttribute("aria-current", "true");
+        } else {
+          card.removeAttribute("aria-current");
+        }
+      });
+
+      qsa('input[name="style"]').forEach(function (input) {
+        var checked = !!key && input.value === key;
+        if (input.checked !== checked) input.checked = checked;
+      });
+
+      if (key && typeof PhoneSite.renderStyle === "function") {
+        PhoneSite.renderStyle(key);
+      }
+
+      var orderInputs = qsa('input[name="order-color"]');
+      if (orderInputs.length) {
+        if (key && typeof PhoneSite.selectColor === "function") {
+          PhoneSite.selectColor(key);
+        } else if (!key) {
+          orderInputs.forEach(function (input) {
+            input.checked = false;
+          });
+          PhoneSite.order.color = null;
+          if (typeof PhoneSite.updateSummary === "function") {
+            PhoneSite.updateSummary();
+          }
+        }
+      } else if (key && PhoneSite.order) {
+        PhoneSite.order.color = key;
+      }
+    }
+
+    function emit(key) {
+      var event;
+      if (typeof window.CustomEvent === "function") {
+        event = new CustomEvent("phonesite:themechange", {
+          bubbles: true,
+          detail: { colorKey: key }
+        });
+      } else {
+        event = document.createEvent("CustomEvent");
+        event.initCustomEvent("phonesite:themechange", true, false, {
+          colorKey: key
+        });
+      }
+      document.dispatchEvent(event);
+    }
+
+    function apply(key) {
+      if (key) {
+        root.setAttribute("data-theme", key);
+      } else {
+        root.removeAttribute("data-theme");
+      }
+      current = key;
+      PhoneSite.theme.current = key;
+      save(key);
+      syncControls(key);
+      emit(key);
+    }
+
+    function set(key) {
+      if (!key || !isValid(key)) return false;
+      if (key === current) {
+        syncControls(key);
+        return true;
+      }
+      apply(key);
+      return true;
+    }
+
+    function reset() {
+      if (current === null) {
+        syncControls(null);
+        return true;
+      }
+      apply(null);
+      return true;
+    }
+
+    var saved = read();
+    if (saved) {
+      root.setAttribute("data-theme", saved);
+      current = saved;
+    }
+
+    return {
+      current: current,
+      set: set,
+      get: function () {
+        return current;
+      },
+      reset: reset,
+      sync: function () {
+        syncControls(current);
+      }
+    };
+  })();
+
+  PhoneSite.gallery = (function () {
+    var state = {
+      colorKey: null,
+      items: [],
+      index: 0
+    };
+
+    var els = {};
+    var cache = {};
+    var requestToken = 0;
+    var fadeTimer = null;
+    var initialized = false;
+
+    function colorFor(key) {
+      var found = null;
+
+      PhoneSite.colors.forEach(function (color) {
+        if (color.key === key) found = color;
+      });
+
+      return found;
+    }
+
+    function entryFor(colorKey, slotKey) {
+      return PhoneSite.images[colorKey] && PhoneSite.images[colorKey][slotKey];
+    }
+
+    function hasKnownImage(key) {
+      var images = PhoneSite.images[key] || {};
+      var known = false;
+
+      PhoneSite.gallerySlots.forEach(function (slot) {
+        var entry = images[slot.key];
+
+        if (entry && (entry.src || entry.fallback)) known = true;
+      });
+
+      return known;
+    }
+
+    function initialColorKey() {
+      var current = PhoneSite.theme ? PhoneSite.theme.get() : null;
+
+      if (current && PhoneSite.images[current] && hasKnownImage(current)) {
+        return current;
+      }
+
+      var known = null;
+
+      PhoneSite.colors.forEach(function (color) {
+        if (!known && hasKnownImage(color.key)) known = color.key;
+      });
+
+      if (known) return known;
+
+      return PhoneSite.colors.length ? PhoneSite.colors[0].key : null;
+    }
+
+    function toUrl(path) {
+      return String(path)
+        .replace(/\\/g, "/")
+        .split("/")
+        .map(function (part) {
+          return encodeURIComponent(part);
+        })
+        .join("/");
+    }
+
+    function candidatesFor(entry) {
+      var list = [];
+      var path = entry.path;
+      var extensions = entry.extensions || PhoneSite.galleryExtensions;
+
+      if (entry.src) {
+        var src = toUrl(entry.src);
+
+        if (list.indexOf(src) === -1) list.push(src);
+      }
+
+      if (path) {
+        extensions.forEach(function (extension) {
+          var candidate = toUrl(path + "." + extension);
+
+          if (list.indexOf(candidate) === -1) list.push(candidate);
+        });
+      }
+
+      if (entry.fallback) {
+        var fallback = toUrl(entry.fallback);
+
+        if (list.indexOf(fallback) === -1) list.push(fallback);
+      }
+
+      return list;
+    }
+
+    function resolveSlot(colorKey, slotKey, callback) {
+      var key = colorKey + ":" + slotKey;
+      var cached = cache[key];
+
+      if (cached) {
+        if (cached.done) callback(cached.url);
+        else cached.waiters.push(callback);
+        return;
+      }
+
+      cached = cache[key] = {
+        done: false,
+        url: null,
+        waiters: [callback]
+      };
+
+      var candidates = candidatesFor(entryFor(colorKey, slotKey) || {});
+      var index = 0;
+
+      function finish(url) {
+        if (cached.done) return;
+
+        cached.done = true;
+        cached.url = url;
+
+        var waiters = cached.waiters;
+        cached.waiters = [];
+
+        waiters.forEach(function (waiter) {
+          waiter(url);
+        });
+      }
+
+      function next() {
+        if (index >= candidates.length) {
+          finish(null);
+          return;
+        }
+
+        var url = candidates[index];
+        index += 1;
+
+        var probe = new Image();
+
+        probe.onload = function () {
+          if (probe.naturalWidth > 0) finish(url);
+          else next();
+        };
+
+        probe.onerror = function () {
+          next();
+        };
+
+        probe.src = url;
+      }
+
+      next();
+    }
+
+    function setSwitcherState() {
+      qsa("[data-gallery-color]", els.switcher).forEach(function (button) {
+        var active =
+          button.getAttribute("data-gallery-color") === state.colorKey;
+
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+
+    function buildSwitcher() {
+      els.switcher.innerHTML = "";
+
+      PhoneSite.colors.forEach(function (color) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "gallery__color";
+        button.setAttribute("data-gallery-color", color.key);
+        button.setAttribute("aria-label", "عرض صور " + color.nameAr);
+        button.setAttribute("aria-pressed", "false");
+
+        var dot = document.createElement("span");
+        dot.className = "gallery__color-dot gallery__color-dot--" + color.key;
+        dot.setAttribute("aria-hidden", "true");
+
+        var name = document.createElement("span");
+        name.className = "gallery__color-name";
+        name.textContent = color.nameAr;
+
+        button.appendChild(dot);
+        button.appendChild(name);
+
+        button.addEventListener("click", function () {
+          if (PhoneSite.theme) PhoneSite.theme.set(color.key);
+          else selectColor(color.key);
+        });
+
+        els.switcher.appendChild(button);
+      });
+    }
+
+    function updateMeta() {
+      var item = state.items[state.index];
+      var color = colorFor(state.colorKey);
+
+      if (!item || !color) {
+        els.caption.textContent = "";
+        els.counter.textContent = "";
+        return;
+      }
+
+      els.caption.textContent = item.label;
+      els.counter.textContent = state.index + 1 + " / " + state.items.length;
+      els.stage.setAttribute(
+        "aria-label",
+        "فتح معرض صور " + color.nameAr + " - " + item.label
+      );
+    }
+
+    function updateThumbs() {
+      qsa("[data-gallery-index]", els.thumbs).forEach(function (button, index) {
+        button.setAttribute(
+          "aria-current",
+          index === state.index ? "true" : "false"
+        );
+      });
+    }
+
+    function buildThumbs() {
+      els.thumbs.innerHTML = "";
+
+      var color = colorFor(state.colorKey);
+
+      state.items.forEach(function (item, index) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "gallery__thumb";
+        button.setAttribute("data-gallery-index", String(index));
+        button.setAttribute(
+          "aria-label",
+          "عرض " + (color ? color.nameAr + " - " : "") + item.label
+        );
+        button.setAttribute(
+          "aria-current",
+          index === state.index ? "true" : "false"
+        );
+
+        var image = document.createElement("img");
+        image.src = item.url;
+        image.alt = item.alt;
+        image.width = 160;
+        image.height = 160;
+        image.loading = "lazy";
+        image.decoding = "async";
+        image.draggable = false;
+
+        button.appendChild(image);
+
+        button.addEventListener("click", function () {
+          showItem(index, false);
+        });
+
+        els.thumbs.appendChild(button);
+      });
+    }
+
+    function swapMain(item) {
+      els.main.onload = function () {
+        els.main.classList.remove("is-fading");
+        els.main.onload = null;
+      };
+
+      els.main.onerror = function () {
+        els.main.onerror = null;
+        els.main.classList.remove("is-fading");
+        els.main.removeAttribute("src");
+        els.main.alt = "";
+      };
+
+      els.main.src = item.url;
+      els.main.alt = item.alt;
+
+      if (els.main.complete && els.main.naturalWidth > 0) {
+        els.main.classList.remove("is-fading");
+      }
+    }
+
+    function showItem(index, crossfade) {
+      if (!state.items.length) return;
+
+      if (index < 0) index = state.items.length - 1;
+      if (index >= state.items.length) index = 0;
+
+      state.index = index;
+
+      var item = state.items[index];
+
+      updateThumbs();
+      updateMeta();
+
+      window.clearTimeout(fadeTimer);
+
+      if (
+        crossfade &&
+        els.main.getAttribute("src") &&
+        !PhoneSite.prefersReducedMotion()
+      ) {
+        els.main.classList.add("is-fading");
+        fadeTimer = window.setTimeout(function () {
+          swapMain(item);
+        }, 150);
+      } else {
+        els.main.classList.remove("is-fading");
+        swapMain(item);
+      }
+    }
+
+    function finishColor(key, results, token) {
+      if (token !== requestToken || key !== state.colorKey) return;
+
+      results.sort(function (a, b) {
+        return a.order - b.order;
+      });
+
+      state.items = results;
+      state.index = 0;
+
+      var hadImage = !!els.main.getAttribute("src");
+      var hasItems = results.length > 0;
+
+      els.stage.hidden = !hasItems;
+      els.placeholder.hidden = hasItems;
+      els.meta.hidden = !hasItems;
+      els.thumbsWrap.hidden = !hasItems;
+
+      if (!hasItems) {
+        window.clearTimeout(fadeTimer);
+        els.main.classList.remove("is-fading");
+        els.main.removeAttribute("src");
+        els.main.alt = "";
+        els.caption.textContent = "";
+        els.counter.textContent = "";
+        els.thumbs.innerHTML = "";
+        return;
+      }
+
+      buildThumbs();
+      showItem(0, hadImage);
+    }
+
+    function selectColor(key) {
+      if (!key || !PhoneSite.images[key]) return;
+
+      state.colorKey = key;
+      setSwitcherState();
+
+      var token = ++requestToken;
+      var results = [];
+      var remaining = PhoneSite.gallerySlots.length;
+
+      if (!remaining) {
+        finishColor(key, results, token);
+        return;
+      }
+
+      PhoneSite.gallerySlots.forEach(function (slot, order) {
+        resolveSlot(key, slot.key, function (url) {
+          if (token !== requestToken) return;
+
+          if (url) {
+            var entry = entryFor(key, slot.key);
+
+            results.push({
+              slot: slot.key,
+              label: slot.label,
+              alt: entry && entry.alt ? entry.alt : slot.label,
+              url: url,
+              order: order
+            });
+          }
+
+          remaining -= 1;
+
+          if (remaining === 0) {
+            finishColor(key, results, token);
+          }
+        });
+      });
+    }
+
+    function openLightbox() {
+      if (!state.items.length) return;
+      PhoneSite.lightbox.open(state.items, state.index, els.stage);
+    }
+
+    function onThemeChange(event) {
+      var key = event.detail && event.detail.colorKey;
+      selectColor(key && PhoneSite.images[key] ? key : initialColorKey());
+    }
+
+    function init() {
+      if (initialized) return;
+      initialized = true;
+
+      els.root = qs("[data-gallery]");
+      if (!els.root) return;
+
+      els.switcher = qs("[data-gallery-switcher]", els.root);
+      els.stage = qs("[data-gallery-open]", els.root);
+      els.main = qs("[data-gallery-main]", els.root);
+      els.caption = qs("[data-gallery-caption]", els.root);
+      els.counter = qs("[data-gallery-counter]", els.root);
+      els.placeholder = qs("[data-gallery-placeholder]", els.root);
+      els.meta = qs("[data-gallery-meta]", els.root);
+      els.thumbsWrap = qs("[data-gallery-thumbs-wrap]", els.root);
+      els.thumbs = qs("[data-gallery-thumbs]", els.root);
+
+      buildSwitcher();
+      els.stage.addEventListener("click", openLightbox);
+      document.addEventListener("phonesite:themechange", onThemeChange);
+      selectColor(initialColorKey());
+    }
+
+    return {
+      init: init,
+      selectColor: selectColor,
+      getItems: function () {
+        return state.items.slice();
+      },
+      getIndex: function () {
+        return state.index;
+      }
+    };
+  })();
+
+  PhoneSite.lightbox = (function () {
+    var state = {
+      items: [],
+      index: 0,
+      opener: null,
+      isOpen: false
+    };
+
+    var els = {};
+    var page = [];
+    var closeTimer = null;
+    var touchStartX = 0;
+    var touchStartY = 0;
+
+    function preloadAround() {
+      var length = state.items.length;
+      if (length < 2) return;
+
+      [state.index + 1, state.index - 1].forEach(function (index) {
+        var target = ((index % length) + length) % length;
+        var preload = new Image();
+        preload.decoding = "async";
+        preload.src = state.items[target].url;
+      });
+    }
+
+    function render() {
+      var item = state.items[state.index];
+      if (!item) return;
+
+      els.img.src = item.url;
+      els.img.alt = item.alt;
+      els.caption.textContent = item.label;
+      els.counter.textContent = state.index + 1 + " / " + state.items.length;
+      els.live.textContent =
+        "صورة " +
+        (state.index + 1) +
+        " من " +
+        state.items.length +
+        ": " +
+        item.label;
+
+      var single = state.items.length < 2;
+      els.prev.hidden = single;
+      els.next.hidden = single;
+
+      preloadAround();
+    }
+
+    function getFocusable() {
+      return [els.close, els.prev, els.next].filter(function (element) {
+        return element && !element.hidden;
+      });
+    }
+
+    function setPageInert(value) {
+      page.forEach(function (element) {
+        if (value) {
+          element.setAttribute("inert", "");
+          element.setAttribute("aria-hidden", "true");
+        } else {
+          element.removeAttribute("inert");
+          element.removeAttribute("aria-hidden");
+        }
+      });
+    }
+
+    function go(step) {
+      if (state.items.length < 2) return;
+
+      state.index =
+        (state.index + step + state.items.length) % state.items.length;
+
+      render();
+    }
+
+    function open(items, index, opener) {
+      if (!items || !items.length) return;
+
+      state.items = items.slice();
+      state.index = Math.min(Math.max(index || 0, 0), state.items.length - 1);
+      state.opener = opener || document.activeElement;
+      state.isOpen = true;
+
+      window.clearTimeout(closeTimer);
+
+      els.root.hidden = false;
+      els.root.setAttribute("aria-hidden", "false");
+      document.documentElement.classList.add("is-lightbox-open");
+
+      setPageInert(true);
+      render();
+
+      void els.root.offsetWidth;
+      els.root.classList.add("is-open");
+
+      window.setTimeout(
+        function () {
+          els.dialog.focus();
+        },
+        PhoneSite.prefersReducedMotion() ? 0 : 30
+      );
+    }
+
+    function close() {
+      if (!state.isOpen) return;
+
+      state.isOpen = false;
+
+      els.root.classList.remove("is-open");
+      document.documentElement.classList.remove("is-lightbox-open");
+      setPageInert(false);
+
+      window.clearTimeout(closeTimer);
+
+      closeTimer = window.setTimeout(
+        function () {
+          if (state.isOpen) return;
+
+          els.root.hidden = true;
+          els.root.setAttribute("aria-hidden", "true");
+
+          if (state.opener && typeof state.opener.focus === "function") {
+            state.opener.focus();
+          }
+
+          state.opener = null;
+        },
+        PhoneSite.prefersReducedMotion() ? 0 : 230
+      );
+    }
+
+    function onKeydown(event) {
+      if (!state.isOpen) return;
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        go(1);
+        return;
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        go(-1);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      var focusable = getFocusable();
+
+      if (!focusable.length) {
+        event.preventDefault();
+        els.dialog.focus();
+        return;
+      }
+
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      var active = document.activeElement;
+
+      if (event.shiftKey && (active === first || active === els.dialog)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    function onTouchStart(event) {
+      if (!event.touches || event.touches.length !== 1) return;
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+    }
+
+    function onTouchEnd(event) {
+      if (!state.isOpen || !event.changedTouches || event.changedTouches.length !== 1) {
+        return;
+      }
+
+      var deltaX = event.changedTouches[0].clientX - touchStartX;
+      var deltaY = event.changedTouches[0].clientY - touchStartY;
+
+      if (
+        Math.abs(deltaX) < 50 ||
+        Math.abs(deltaX) < Math.abs(deltaY) * 1.2
+      ) {
+        return;
+      }
+
+      go(deltaX < 0 ? 1 : -1);
+    }
+
+    function init() {
+      els.root = qs("[data-lightbox]");
+      if (!els.root) return;
+
+      els.dialog = qs("[data-lightbox-dialog]", els.root);
+      els.img = qs("[data-lightbox-img]", els.root);
+      els.caption = qs("[data-lightbox-caption]", els.root);
+      els.counter = qs("[data-lightbox-counter]", els.root);
+      els.close = qs("[data-lightbox-close]", els.root);
+      els.prev = qs("[data-lightbox-prev]", els.root);
+      els.next = qs("[data-lightbox-next]", els.root);
+      els.backdrop = qs("[data-lightbox-backdrop]", els.root);
+      els.live = qs("[data-lightbox-live]", els.root);
+
+      page = [
+        qs(".skip-link"),
+        qs("#site-header"),
+        qs("#main"),
+        qs("#site-footer"),
+        qs(".back-to-top")
+      ].filter(Boolean);
+
+      els.root.setAttribute("aria-hidden", "true");
+
+      els.close.addEventListener("click", close);
+      els.prev.addEventListener("click", function () {
+        go(-1);
+      });
+      els.next.addEventListener("click", function () {
+        go(1);
+      });
+      els.backdrop.addEventListener("click", close);
+      els.dialog.addEventListener("click", function (event) {
+        if (event.target === els.dialog) close();
+      });
+      els.dialog.addEventListener("touchstart", onTouchStart, {
+        passive: true
+      });
+      els.dialog.addEventListener("touchend", onTouchEnd, { passive: true });
+      document.addEventListener("keydown", onKeydown);
+    }
+
+    return {
+      init: init,
+      open: open,
+      close: close
+    };
+  })();
 
   /**
    * Philosophy close-up: image fallback + a gentle one-off scroll motion.
@@ -800,7 +1846,12 @@
 
     inputs.forEach(function (input) {
       input.addEventListener("change", function () {
-        if (input.checked) render(input.value);
+        if (!input.checked) return;
+        if (PhoneSite.theme) {
+          PhoneSite.theme.set(input.value);
+        } else {
+          render(input.value);
+        }
       });
       // Honour a restored/default selection, if the browser made one.
       if (input.checked) render(input.value);
@@ -1510,7 +2561,12 @@
       label.appendChild(inner);
 
       input.addEventListener("change", function () {
-        if (input.checked) PhoneSite.selectColor(color.key);
+        if (!input.checked) return;
+        if (PhoneSite.theme) {
+          PhoneSite.theme.set(color.key);
+        } else {
+          PhoneSite.selectColor(color.key);
+        }
       });
 
       wrap.appendChild(label);
@@ -1542,8 +2598,13 @@
     // Card buttons preselect their colour, then jump to the form.
     qsa("[data-order-color]").forEach(function (button) {
       button.addEventListener("click", function () {
+        var colorKey = button.getAttribute("data-order-color");
         if (orderConfirmationVisible()) PhoneSite.resetOrderForm();
-        PhoneSite.selectColor(button.getAttribute("data-order-color"));
+        if (PhoneSite.theme) {
+          PhoneSite.theme.set(colorKey);
+        } else {
+          PhoneSite.selectColor(colorKey);
+        }
         PhoneSite.scrollToOrder();
       });
     });
@@ -1693,15 +2754,9 @@
   };
 
   /**
-   * Swap in the CSS/SVG phone composition when the hero shot is missing.
-   * Uses the image `error` event (no inline onerror in the markup).
+   * Render the optional spec values. The center image is a static <img>.
    */
   PhoneSite.initSpecs = function () {
-    var media = qs("[data-specs-media]");
-    var img = qs("[data-specs-img]");
-
-    PhoneSite.bindImageFallback(media, img);
-
     PhoneSite.renderSpecValues();
   };
 
@@ -1874,17 +2929,6 @@
   };
 
   /**
-   * Final CTA: swap the decorative photo for the fanned phone placeholders
-   * when cta-phones.webp is missing (shared error handler).
-   */
-  PhoneSite.initFinalCta = function () {
-    var media = qs(".final-cta__media");
-    if (!media) return;
-
-    PhoneSite.bindImageFallback(media, qs(".final-cta__img", media));
-  };
-
-  /**
    * Back to top: appears after ~800px, hides as the footer enters the
    * viewport so it never covers footer links. rAF-throttled, passive.
    */
@@ -1929,21 +2973,22 @@
      ---------------------------------------------------------------------- */
   document.addEventListener("DOMContentLoaded", function () {
     PhoneSite.applyConfig();
-    PhoneSite.createRevealObserver();
     PhoneSite.initHeader();
     PhoneSite.initMobileMenu();
     PhoneSite.initActiveNav();
     PhoneSite.initHero();
     PhoneSite.initCollection();
+    PhoneSite.gallery.init();
+    PhoneSite.lightbox.init();
+    PhoneSite.createRevealObserver();
     PhoneSite.initPhilosophyMotion();
     PhoneSite.initStyleFinder();
     PhoneSite.initSpecs();
-    PhoneSite.initCompare();
     PhoneSite.initOrder();
     PhoneSite.initFaq();
     PhoneSite.initFooter();
-    PhoneSite.initFinalCta();
     PhoneSite.initBackToTop();
+    PhoneSite.theme.sync();
   });
 
   window.PhoneSite = PhoneSite;

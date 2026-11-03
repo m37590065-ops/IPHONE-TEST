@@ -1,1 +1,20 @@
-.DS_Store\nThumbs.db\nnode_modules/\n.env\n.env.*\n*.log\n.vscode/\n.idea/\n
+# Environment & secrets
+.env
+.env.*
+
+# Logs
+*.log
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary test/debug files
+_*.html

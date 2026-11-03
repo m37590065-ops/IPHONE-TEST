@@ -1,37 +1,146 @@
 /* ==========================================================================
-   base.css — Reset, design tokens, typography, utilities, buttons
+   base.css — Design tokens, reset, typography, utilities, buttons and icons
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
    1. Design tokens
    -------------------------------------------------------------------------- */
-:root {
-  /* Interface colors */
-  --color-ivory: #F5F2ED;
-  --color-white: #FFFFFF;
-  --color-charcoal: #252525;
-  --color-text-muted: #5E5E5A;
-  --color-text-on-dark: #F5F2ED;
-  --color-text-muted-on-dark: #B9B6B0;
-  --color-line: rgba(37, 37, 37, 0.12);
 
-  /* Phone colors */
-  --phone-light-blue: #A8BCD9;
-  --phone-dark-cherry: #682D40;
-  --phone-dark-gray: #3D3D3B;
-  --phone-silver: #DAD9D5;
+/* Registered theme tokens. Modern browsers can interpolate these smoothly;
+   older browsers simply switch the resolved colour values instantly. */
+@property --bg-page {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #F3F1ED;
+}
+
+@property --bg-surface {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #FBF9F6;
+}
+
+@property --bg-surface-alt {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ECE9E4;
+}
+
+@property --glow-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #C9C3B8;
+}
+
+@property --glow-opacity {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.5;
+}
+
+@property --accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1B1F24;
+}
+
+@property --accent-soft {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #E3DDD4;
+}
+
+@property --text-strong {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1B1F24;
+}
+
+@property --text-muted {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #5B616B;
+}
+
+@property --border-soft {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #DDD8D0;
+}
+
+:root {
+  /* Phone colors — product details only (swatches, tints, product accents) */
+  --phone-light-blue: #A3C9E2;
+  --phone-dark-cherry: #581825;
+  --phone-dark-gray: #2D3136;
+  --phone-silver: #E2E8F0;
+
+  /* Soft phone tints for subtle product backgrounds */
+  --phone-light-blue-tint: rgba(163, 201, 226, 0.16);
+  --phone-dark-cherry-tint: rgba(88, 24, 37, 0.14);
+  --phone-dark-gray-tint: rgba(45, 49, 54, 0.12);
+  --phone-silver-tint: rgba(226, 232, 240, 0.18);
+
+  /* Semantic theme tokens — neutral warm light default */
+  --bg-page: #F3F1ED;
+  --bg-surface: #FBF9F6;
+  --bg-surface-alt: #ECE9E4;
+  --glow-color: #C9C3B8;
+  --glow-opacity: 0.5;
+  --accent: #1B1F24;
+  --accent-soft: #E3DDD4;
+  --text-strong: #1B1F24;
+  --text-muted: #5B616B;
+  --border-soft: #DDD8D0;
+
+  /* Interface aliases kept for existing components */
+  --bg-main: var(--bg-page);
+  --bg-alt: var(--bg-surface-alt);
+  --bg-card: var(--bg-surface);
+  --text-primary: var(--text-strong);
+  --text-secondary: var(--text-muted);
+  --border: var(--border-soft);
+  --surface-dark: #171B21;
+  --text-on-dark: #F7F8FA;
+  --text-on-dark-muted: #A9B2BE;
+  --border-on-dark: rgba(255, 255, 255, 0.14);
+  --lightbox-backdrop: color-mix(in srgb, color-mix(in srgb, var(--surface-dark) 92%, var(--accent) 8%) 94%, transparent);
+
+  /* Hero — warm studio tones sampled to match hero-phones.png */
+  --hero-bg-top: var(--bg-surface);
+  --hero-bg-start: var(--bg-page);
+  --hero-bg-end: var(--bg-surface-alt);
+  --hero-glow: color-mix(in srgb, var(--glow-color) 55%, transparent);
+  --hero-shade: color-mix(in srgb, var(--accent) 14%, transparent);
+  --hero-image-shadow: color-mix(in srgb, var(--text-strong) 22%, transparent);
+  --hero-text: var(--text-strong);
+  --hero-text-muted: var(--text-muted);
+  --hero-surface: var(--bg-surface);
+  --hero-border: var(--border-soft);
+
+  /* Semantic colors (form validation only) */
+  --danger: #9B1C1C;
+  --danger-strong: #7F1D1D;
+  --danger-soft: #FDF2F2;
 
   /* Typography */
   --font-ar: "IBM Plex Sans Arabic", system-ui, sans-serif;
   --font-en: "Inter", system-ui, sans-serif;
 
   /* Fluid type scale */
-  --text-hero: clamp(2.25rem, 1.2rem + 4.6vw, 4.5rem);
-  --text-section: clamp(1.75rem, 1.1rem + 2.4vw, 2.75rem);
-  --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-display: clamp(2.5rem, 1.1rem + 5vw, 4.5rem);
+  --text-h1: clamp(2rem, 1.2rem + 3vw, 3.25rem);
+  --text-h2: clamp(1.75rem, 1.2rem + 2.2vw, 2.5rem);
+  --text-h3: clamp(1.375rem, 1.15rem + 1vw, 1.75rem);
+  --text-h4: clamp(1.125rem, 1.03rem + 0.4vw, 1.25rem);
+  --text-body-lg: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
+  --text-body: clamp(1rem, 0.96rem + 0.18vw, 1.0625rem);
   --text-small: 0.875rem;
+  --text-caption: 0.75rem;
+  --leading-tight: 1.2;
+  --leading-body: 1.7;
 
-  /* Spacing scale */
+  /* Spacing scale (4px base) */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -42,26 +151,117 @@
   --space-8: 64px;
   --space-9: 96px;
   --space-10: 112px;
-  --section-gap: clamp(72px, 10vw, 112px);
-
-  /* Shape */
-  --radius-card: 16px;
-  --radius-card-sm: 12px;
-  --radius-pill: 999px;
-  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.06);
-
-  /* Motion */
-  --transition-fast: 200ms ease;
-  --transition-base: 300ms cubic-bezier(.2, .7, .2, 1);
+  --section-gap: clamp(56px, 8vw, 88px);
 
   /* Layout */
+  --container: 1200px;
   --header-h: 64px;
+  --header-h-scrolled: 60px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Shadows — three light levels only */
+  --shadow-sm: 0 1px 2px rgba(21, 25, 31, 0.04), 0 4px 12px rgba(21, 25, 31, 0.04);
+  --shadow-md: 0 6px 18px rgba(21, 25, 31, 0.06), 0 14px 34px rgba(21, 25, 31, 0.05);
+  --shadow-lg: 0 12px 28px rgba(21, 25, 31, 0.08), 0 28px 60px rgba(21, 25, 31, 0.07);
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --transition-fast: 200ms var(--ease);
+  --transition-base: 300ms var(--ease);
+  --transition-slow: 350ms var(--ease);
+  --theme-transition: 800ms ease-in-out;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   :root {
-    --header-h: 84px;
+    --section-gap: clamp(72px, 9vw, 112px);
   }
+}
+
+@media (min-width: 900px) {
+  :root {
+    --header-h: 80px;
+    --header-h-scrolled: 68px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   1b. Colour themes — every state stays light; only tint and accent shift.
+   Surfaces use the product palette; muted text is derived where a palette
+   lacks a dark enough neutral, so every state keeps WCAG AA contrast.
+   -------------------------------------------------------------------------- */
+
+/* Sequence for browsers with @property support. The solid background
+   transitions on body/sections are the graceful fallback. */
+:root {
+  transition:
+    --bg-page var(--theme-transition),
+    --bg-surface var(--theme-transition),
+    --bg-surface-alt var(--theme-transition),
+    --glow-color var(--theme-transition),
+    --glow-opacity var(--theme-transition),
+    --accent var(--theme-transition),
+    --accent-soft var(--theme-transition),
+    --text-strong var(--theme-transition),
+    --text-muted var(--theme-transition),
+    --border-soft var(--theme-transition);
+}
+
+html[data-theme="light-blue"] {
+  --bg-page: #EAF4FA;
+  --bg-surface: #F7FBFD;
+  --bg-surface-alt: #DCEBF5;
+  --glow-color: #A3C9E2;
+  --glow-opacity: 0.45;
+  --accent: #29465C;
+  --accent-soft: #C5DDEB;
+  --text-strong: #29465C;
+  --text-muted: #3F5A6D;
+  --border-soft: #C5DDEB;
+}
+
+html[data-theme="dark-cherry"] {
+  --bg-page: #F2E9EB;
+  --bg-surface: #FCF8F8;
+  --bg-surface-alt: #EAD9DD;
+  --glow-color: #8B4654;
+  --glow-opacity: 0.38;
+  --accent: #581825;
+  --accent-soft: #EAD9DD;
+  --text-strong: #35121A;
+  --text-muted: #5C3941;
+  --border-soft: #EAD9DD;
+}
+
+html[data-theme="dark-gray"] {
+  --bg-page: #ECEFF2;
+  --bg-surface: #F7F8FA;
+  --bg-surface-alt: #DCE0E5;
+  --glow-color: #555E68;
+  --glow-opacity: 0.3;
+  --accent: #2D3136;
+  --accent-soft: #DCE0E5;
+  --text-strong: #171B20;
+  --text-muted: #3F464E;
+  --border-soft: #DCE0E5;
+}
+
+html[data-theme="silver"] {
+  --bg-page: #E8EDF2;
+  --bg-surface: #FFFFFF;
+  --bg-surface-alt: #F1F4F7;
+  --glow-color: #E2E8F0;
+  --glow-opacity: 0.55;
+  --accent: #687583;
+  --accent-soft: #D4DCE5;
+  --text-strong: #2F3943;
+  --text-muted: #4B5662;
+  --border-soft: #D4DCE5;
 }
 
 /* --------------------------------------------------------------------------
@@ -81,19 +281,32 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: var(--header-h);
+  scrollbar-gutter: stable;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
   min-height: 100vh;
-  background-color: var(--color-ivory);
-  color: var(--color-charcoal);
+  background-color: var(--bg-page);
+  color: var(--text-strong);
   font-family: var(--font-ar);
   font-size: var(--text-body);
   font-weight: 400;
-  line-height: 1.8;
+  line-height: var(--leading-body);
+  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fallback for browsers without registered custom properties: the theme
+   still changes, but by cross-fading solid surface colours. */
+html:not(.has-registered-props) body {
+  transition:
+    background-color var(--theme-transition),
+    color var(--theme-transition);
 }
 
 img,
@@ -125,48 +338,141 @@ a {
    3. Focus styles (keyboard users)
    -------------------------------------------------------------------------- */
 :focus-visible {
-  outline: 2px solid var(--color-charcoal);
+  outline: 2px solid var(--text-primary);
   outline-offset: 3px;
 }
 
-.on-dark :focus-visible {
-  outline-color: var(--color-white);
+.on-dark :focus-visible,
+.section--dark :focus-visible {
+  outline-color: var(--text-on-dark);
 }
 
 /* --------------------------------------------------------------------------
    4. Typography
    -------------------------------------------------------------------------- */
-.hero-title {
-  font-size: var(--text-hero);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-primary);
   font-weight: 600;
+  line-height: var(--leading-tight);
+}
+
+h1 {
+  font-size: var(--text-h1);
+}
+
+h2 {
+  font-size: var(--text-h2);
+}
+
+h3 {
+  font-size: var(--text-h3);
+}
+
+h4 {
+  font-size: var(--text-h4);
+}
+
+/* Shared type scale utilities for later steps. */
+.type-display {
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.type-h1 {
+  font-size: var(--text-h1);
+  font-weight: 700;
   line-height: 1.15;
+}
+
+.type-h2 {
+  font-size: var(--text-h2);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.type-h3 {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.type-h4 {
+  font-size: var(--text-h4);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.type-body-lg {
+  font-size: var(--text-body-lg);
+  font-weight: 400;
+  line-height: var(--leading-body);
+}
+
+.type-body {
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: var(--leading-body);
+}
+
+.type-small {
+  font-size: var(--text-small);
+  line-height: 1.6;
+}
+
+.type-caption {
+  font-size: var(--text-caption);
+  line-height: 1.6;
+}
+
+.hero-title {
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: 1.1;
   letter-spacing: 0;
 }
 
 .section-title {
-  font-size: var(--text-section);
+  font-size: var(--text-h2);
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: 0;
 }
 
 .body-text {
-  font-size: var(--text-body);
+  font-size: var(--text-body-lg);
   font-weight: 400;
-  line-height: 1.8;
+  line-height: var(--leading-body);
+}
+
+.hero__lead {
+  color: var(--text-secondary);
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body);
 }
 
 .caption {
-  font-size: var(--text-small);
-  line-height: 1.7;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: 1.6;
 }
 
-/* English content: names, numbers, Pantone codes, specs */
+/* English content, numbers, prices and specs. */
 .en,
+.num,
 [lang="en"] {
   font-family: var(--font-en);
   direction: ltr;
   unicode-bidi: isolate;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
 }
 
 /* --------------------------------------------------------------------------
@@ -191,10 +497,10 @@ a {
   inset-block-start: var(--space-4);
   z-index: 100;
   padding: var(--space-3) var(--space-5);
-  background-color: var(--color-charcoal);
-  color: var(--color-text-on-dark);
+  background-color: var(--text-primary);
+  color: var(--text-on-dark);
   border-radius: var(--radius-pill);
-  font-weight: 500;
+  font-weight: 600;
   transform: translateY(-200%);
   transition: transform var(--transition-fast);
 }
@@ -215,80 +521,138 @@ html.js [data-reveal].is-visible {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity 600ms var(--transition-base),
-    transform 600ms var(--transition-base);
+    opacity 600ms var(--ease),
+    transform 600ms var(--ease);
 }
 
 /* --------------------------------------------------------------------------
-   7. Buttons
+   7. Buttons — primary, secondary and text levels
    -------------------------------------------------------------------------- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-2);
   min-height: 48px;
   padding-inline: 28px;
-  border: 1.5px solid transparent;
+  border: 1px solid transparent;
   border-radius: var(--radius-pill);
   background-color: transparent;
-  font-weight: 500;
+  color: var(--text-primary);
+  font-family: var(--font-ar);
+  font-size: var(--text-body);
+  font-weight: 600;
   line-height: 1.5;
-  cursor: pointer;
   text-align: center;
+  cursor: pointer;
   transition:
     background-color var(--transition-fast),
+    border-color var(--transition-fast),
     color var(--transition-fast),
-    transform var(--transition-fast),
-    border-color var(--transition-fast);
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.btn__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* The arrow points right in LTR and flips for RTL reading direction. */
+[dir="rtl"] .btn__icon--arrow,
+[dir="rtl"] .icon--arrow {
+  transform: scaleX(-1);
 }
 
 .btn--primary {
-  background-color: var(--color-charcoal);
-  color: var(--color-ivory);
+  border-color: var(--text-primary);
+  background-color: var(--text-primary);
+  color: var(--text-on-dark);
 }
 
-.btn--primary:hover {
-  background-color: #3a3a3a;
-  transform: translateY(-1px);
+.btn--primary:not(:disabled):not([aria-disabled="true"]):hover {
+  background-color: color-mix(in srgb, var(--text-primary) 88%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--text-primary) 88%, var(--bg-card));
+}
+
+/* Formerly dark sections remap --text-on-dark for their body copy, so primary
+   buttons need the inverse surface token explicitly to stay readable. */
+.section--dark .btn--primary,
+.on-dark .btn--primary {
+  border-color: var(--text-strong);
+  background-color: var(--text-strong);
+  color: var(--bg-surface);
 }
 
 .btn--secondary {
-  border-color: var(--color-charcoal);
-  color: var(--color-charcoal);
+  border-color: var(--border);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
 }
 
-.btn--secondary:hover {
-  background-color: var(--color-charcoal);
-  color: var(--color-ivory);
+.btn--secondary:not(:disabled):not([aria-disabled="true"]):hover {
+  border-color: color-mix(in srgb, var(--text-primary) 24%, var(--border));
+  background-color: var(--bg-alt);
 }
 
-.btn--light {
-  background-color: var(--color-white);
-  color: var(--color-charcoal);
+.btn--text {
+  min-height: 48px;
+  padding-inline: var(--space-1);
+  border-color: transparent;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--text-primary);
 }
 
-.btn--light:hover {
-  background-color: var(--color-ivory);
+.btn--text:not(:disabled):not([aria-disabled="true"]):hover {
+  color: var(--text-secondary);
 }
 
-.btn--ghost-light {
-  border-color: var(--color-ivory);
-  color: var(--color-ivory);
+.btn:not(:disabled):not([aria-disabled="true"]):active {
+  transform: scale(0.99);
 }
 
-.btn--ghost-light:hover {
-  background-color: var(--color-ivory);
-  color: var(--color-charcoal);
+.btn:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
 }
 
-.btn:active {
-  transform: translateY(0) scale(0.99);
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* --------------------------------------------------------------------------
-   8. Reduced motion
+   8. Icons — 1.5px line symbols, currentColor
+   -------------------------------------------------------------------------- */
+.icon {
+  width: 1.25em;
+  height: 1.25em;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   9. Reduced motion
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    transition: none;
+  }
+
   html {
     scroll-behavior: auto;
   }

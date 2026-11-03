@@ -1,5 +1,5 @@
 /* ==========================================================================
-   layout.css — Container, section spacing, grids, responsive helpers
+   layout.css — Container, section background system, spacing and grids
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 }
 
 .container {
-  width: min(100% - 2 * var(--gutter), 1240px);
+  width: min(100% - 2 * var(--gutter), var(--container));
   margin-inline: auto;
 }
 
@@ -30,7 +30,35 @@
    2. Sections
    -------------------------------------------------------------------------- */
 .section {
+  position: relative;
+  isolation: isolate;
   padding-block: var(--section-gap);
+}
+
+html:not(.has-registered-props) .section {
+  transition:
+    background-color var(--theme-transition),
+    color var(--theme-transition);
+}
+
+/* Ambient theme glow. The solid background transitions above are the
+   graceful fallback when registered custom properties are unsupported. */
+.section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    70% 46% at 50% 0%,
+    var(--glow-color) 0%,
+    transparent 72%
+  );
+  opacity: var(--glow-opacity);
+}
+
+html:not(.has-registered-props) .section::before {
+  transition: opacity var(--theme-transition);
 }
 
 /* The fixed header height is handled by html { scroll-padding-top }; this adds
@@ -40,23 +68,48 @@ main[id] {
   scroll-margin-top: var(--space-4);
 }
 
+/* Deliberate light background rhythm: page, tint, surface, soft tint. Every
+   theme keeps these surfaces light; only the tint and accent change. */
+.section--main {
+  background-color: var(--bg-page);
+  color: var(--text-strong);
+}
+
+.section--alt {
+  background-color: var(--bg-surface-alt);
+  color: var(--text-strong);
+}
+
+.section--card {
+  background-color: var(--bg-surface);
+  color: var(--text-strong);
+}
+
+/* Formerly dark sections now use a light tinted surface with strong text. */
+.section--dark,
+.on-dark {
+  --text-on-dark: var(--text-strong);
+  --text-on-dark-muted: var(--text-muted);
+  --border-on-dark: var(--border-soft);
+}
+
 .section--dark {
-  background-color: var(--color-charcoal);
-  color: var(--color-text-on-dark);
+  background-color: var(--bg-surface);
+  color: var(--text-strong);
 }
 
 .section--dark .section-title,
-.section--dark .hero-title {
-  color: var(--color-text-on-dark);
+.section--dark .hero-title,
+.section--dark h1,
+.section--dark h2,
+.section--dark h3,
+.section--dark h4 {
+  color: var(--text-on-dark);
 }
 
 .section--dark .body-text,
 .section--dark .caption {
-  color: var(--color-text-muted-on-dark);
-}
-
-.section--white {
-  background-color: var(--color-white);
+  color: var(--text-on-dark-muted);
 }
 
 .section-head {
@@ -69,11 +122,11 @@ main[id] {
 .section-head .section-title + .body-text,
 .section-head .hero-title + .body-text {
   margin-block-start: var(--space-4);
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
 }
 
 .section--dark .section-head .body-text {
-  color: var(--color-text-muted-on-dark);
+  color: var(--text-on-dark-muted);
 }
 
 /* --------------------------------------------------------------------------
